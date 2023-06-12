@@ -1,0 +1,123 @@
+package kr.or.ddit.therapy.dao;
+
+import java.util.List;
+
+import org.apache.ibatis.annotations.Mapper;
+import org.apache.ibatis.annotations.Param;
+
+import kr.or.ddit.vo.EquipmentStatusRecordVO;
+import kr.or.ddit.vo.MedicalChartVO;
+import kr.or.ddit.vo.MedicalEquipmentVO;
+import kr.or.ddit.vo.PtRecordVO;
+import kr.or.ddit.vo.PtRoomVO;
+import kr.or.ddit.vo.ReceiptionVO;
+
+@Mapper
+public interface TherapyDAO {
+	
+	/**
+	 * 물리치료 대기환자 목록
+	 * @return
+	 */
+	public List<ReceiptionVO> ptWaitingPatientList();
+	
+	/**
+	 * 물리치료기구 상태관리를 위한 목록
+	 * @return
+	 */
+	public List<MedicalEquipmentVO> ptEquipmentList();
+	
+	/**
+	 * 물리치료기구 상세조회
+	 * @param buyerKey
+	 * @return
+	 */
+	public MedicalEquipmentVO ptEquipmentDetail(int equipmentKey);
+	
+	/**
+	 * 물리치료기구 상태기록 목록
+	 * @param equipmentKey
+	 * @return List<EquipmentStatusRecordVO>
+	 */
+	public List<EquipmentStatusRecordVO> ptEquipmentStatusList(int equipmentKey);
+	
+	/**
+	 * 물리치료기구 상태 점검 입력
+	 * @param eqStatusRec
+	 */
+	public int ptEquipmentStatusInsert(EquipmentStatusRecordVO eqStatusRec);
+	
+	
+	/**
+	 * 치료 진행을 위해 환자 오더에 맞는 물리치료기구 목록
+	 * @param patientKey
+	 * @return List<MedicalChartVO>
+	 */
+	public List<MedicalChartVO> ptEquipmentSelectList(String patientKey);
+	
+	
+	/**
+	 * 침상 상태 조회
+	 * @param ptBedKey
+	 * @return PtRoomVO
+	 */
+	public List<PtRoomVO> ptRoomStatusSelect(); 
+	
+	/**
+	 * 침상 상태 업데이트 
+	 * @param ptBedKey
+	 * @return int
+	 */
+	public int ptRoomStatusUpdate(PtRoomVO ptRoomVO);
+	
+	/**
+	 * 치료기구 상태 업데이트
+	 * @param ptEquipmentCode
+	 * @return int
+	 */
+	public int ptEuipmentStatusUpdate(int ptEquipmentKey);
+	
+	/**
+	 * 치료 기록 추가
+	 * @param ptRecordVO
+	 * @return int
+	 */
+	public int ptRecordInsert(PtRecordVO ptRecordVO); 
+	
+	
+	/**
+	 * 침상 상태 리스트
+	 * @return List<PtRoomVO>
+	 */
+	public List<PtRoomVO> ptRoomSelectList();
+	
+	
+	/**
+	 * 침상 현황 리스트
+	 * @return List<PtRecordVO>
+	 */
+	public List<PtRecordVO> nowPtBedStatusList();
+	
+	
+	/**
+	 * 액팅 상세
+	 * @return PtRecordVO
+	 */
+	public PtRecordVO actingDetail(int ptBedKey);
+	
+	/**
+	 * 액팅 코멘트 추가
+	 * @param ptRecordVO
+	 * @return int
+	 */
+	public int actingCommentUpdate(PtRecordVO ptRecordVO);
+	
+	
+	/**
+	 * 환자 진료 차트 상세
+	 * @param medVo
+	 * @return MedicalChartVO
+	 */
+	public ReceiptionVO patientChartDetail(@Param("patientKey") String patientKey,@Param("waitingKey") int waitingKey);
+	
+}

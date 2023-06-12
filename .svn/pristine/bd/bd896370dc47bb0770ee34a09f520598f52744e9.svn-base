@@ -1,0 +1,220 @@
+<%@ page language="java" contentType="text/html; charset=UTF-8"
+    pageEncoding="UTF-8"%>
+<%@ taglib uri="http://java.sun.com/jsp/jstl/core" prefix="c"%>
+<style>
+.grid-stack{
+		height: 100hv;
+	}
+/* 	.grid-stack-item{ */
+/* 		border-radius: 1rem;  */
+/* 	} */
+	.card{
+		margin: 0;
+		--vz-card-inner-border-radius : 1rem;
+		background-color : white;
+	}
+	.card-header{
+		border-radius: 30px;
+		background-color : #405189;
+		color : white;
+	}
+	.rtBtn{
+		float: right;
+	}
+	.nav-tabs .nav-link.active{
+		background-color: #405189;
+		color: white;
+	}
+</style>
+
+<div class="grid-stack"> 
+	
+	<div class="grid-stack-item card" gs-x="0" gs-y="0" gs-w="3" gs-h="3">
+		<div class="card-header">도수치료 대기환자 조회</div> 
+		<div class="card-body">
+			 <div class="grid-stack-item-content">
+				<h4>-물리치료실</h4>
+				<div id="ptWaitingListDiv" style="height: 300px;">
+					<table class="table table-bordered ptTableForm">
+						<thead class='table table-info table-striped'>
+							<tr>
+								<th style="width: 10%">환자코드</th>
+								<th style="width: 23%">환자명<br/>[성별/나이]</th>
+								<th style="width: 12%">상태</th>
+								<th style="width: 15%">처방시간</th>
+								<th style="width: 15%">호출하기</th>
+							</tr>
+						</thead>
+						<tbody id="waitingListBody">
+								<!-- 대기환자 목록 들어오는 위치 -->
+						</tbody>
+					</table>
+				</div>
+			</div>
+		</div>
+	</div>
+	
+	<div class="grid-stack-item card" gs-x="0" gs-y="5" gs-w="3" gs-h="2">
+		<div class="card-header">환자 진료 차트</div> 
+			<div class="card-body">
+				<div class="grid-stack-item-content">
+					<div id="patientChartDiv" style="height: 230px;">
+						<table  class="table table-bordered" >
+							<tr>
+								<th class="table-info">환자명</th>
+								<td id="chPatientName"><!-- 차트 환자명이 들어올 자리 --></td>
+								<th class="table-info">나이/성별</th>
+								<td id="chPatientAge"><!-- 환자 나이,성별이 들어올 자리 --></td>
+							</tr>
+							<tr>
+								<th class="table-info">연락처</th>
+								<td id="chPatientPN"><!-- 환자 연락처 들어올 자리 --></td>
+								<th class="table-info">주소</th>
+								<td id="chPatienAddr"><!-- 환자 주소 들어올 자리 --></td>
+							</tr>
+							<tr>
+								<th class="table-info">보호자명</th>
+								<td id="chGuardianName"><!-- 환자 보호자명 들어올 자리 --></td>
+								<th class="table-info">보호자연락처</th>
+								<td id="chGuardianPN"><!-- 보호자 연락처 들어올 자리 --></td>
+							</tr>
+							<tr>
+								<th  class="table-info" colspan=4">P.I</th>
+							</tr>
+							<tr>
+								<td colspan=4" id="chPI">
+								</td>
+							</tr>
+							<tr>
+								<th  class="table-info" colspan=4">D.I</th>
+							</tr>
+							<tr>
+								<td colspan=4" id="chDI">
+								</td>
+							</tr>
+						</table>				
+					</div>
+				</div>
+			</div>		
+	</div>
+	
+	<div class="grid-stack-item card" gs-x="3" gs-y="5" gs-w="6" gs-h="2">
+		<div class="card-header">도수치료 액팅</div>
+		<div class="card-body">
+			<div class="grid-stack-item-content">
+				<form id="actingForm" method="post" action="${pageContext.request.contextPath}/actingCommentUpdate.do">
+					<table class="table table-bordered ptTableForm">
+						<tr>
+							<th class="table-info" id="acting">환자명</th>
+							<td id="acPatientName"><!-- 액팅할 환자명이 들어올 자리 --></td>
+							<th class="table-info">나이/성별</th>
+							<td id="acPatientAge"><!-- 액팅할 환자 나이,성별이 들어올 자리 --></td>
+						</tr>
+						<tr>
+							<th class="table-info">진단명</th>
+							<td id="acPatientDi"><!-- 액팅할 환자 진단명이 들어올 자리 --></td>
+							<th class="table-info">주치의</th>
+							<td id="acDrName"><!-- 주치의 이름 들어올 자리 --></td>
+						</tr>
+						<tr>
+							<td colspan=4">
+								<div class="form-floating">
+									 <textarea class="form-control" placeholder="Leave a comment here" id="floatingTextarea2" style="height: 100px"></textarea>
+									 <label for="floatingTextarea2">Comments</label>
+								</div>
+							</td>
+						</tr>
+						<tr>
+							<td colspan="4"><input id="actingBtn" type="submit" class="btn btn-primary callBtn" value="액팅하기"></td>
+						</tr>
+					</table>
+				</form>
+			</div>
+		</div>
+	</div>
+
+	<div class="grid-stack-item card" gs-x="3" gs-y="0" gs-w="6" gs-h="3">
+		<div class="card-header">도수치료 액팅</div>
+		<div class="card-body">
+		<div class="grid-stack-item-content">
+				<h4>도수치료 진행</h4>
+				<div>
+					<div id="imgDiv">
+					
+					</div>
+					<div id="navDiv">
+						<!-- Nav tabs -->
+						<ul class="nav nav-tabs mb-3" role="tablist">
+							<li class="nav-item">
+								<a class="nav-link active" data-bs-toggle="tab" href="#planTb" role="tab" aria-selected="false">
+									계획</a></li>
+							<li class="nav-item">
+								<a class="nav-link" data-bs-toggle="tab" href="#assessTb" role="tab" aria-selected="false">
+									평가</a></li>
+						</ul>
+						<!-- Tab panes -->
+						<div class="tab-content  text-muted">
+							<div class="tab-pane active" id="planTb" role="tabpanel">
+								<table class="table table-bordered">
+									<tr>
+										<th>S</th>
+										<td>S 내용</td>
+									</tr>
+									<tr>
+										<th>O</th>
+										<td>O 내용</td>
+									</tr>
+									<tr>
+										<th>A</th>
+										<td>A 내용</td>
+									</tr>
+									<tr>
+										<th>P</th>
+										<td>P 내용</td>
+									</tr>
+								</table>
+							</div>
+							
+							<div class="tab-pane" id="assessTb" role="tabpanel"><!-- 평가 -->
+								<h4>평가 내용 들어옴</h4>
+							</div>
+						</div> <!-- tabs content 끝-->
+					</div>
+				</div>
+			</div>
+		</div>
+	</div>
+	
+	<div class="grid-stack-item card" gs-x="9" gs-y="0" gs-w="3" gs-h="3">
+		<div class="card-header">이전 치료 일지</div>
+		<div class="card-body">
+		</div>
+	</div>
+	
+	<div class="grid-stack-item card" gs-x="9" gs-y="5" gs-w="3" gs-h="2">
+		<div class="card-header">환자 기능 그래프</div>
+		<div class="card-body">
+			<div class="grid-stack-item-content">
+				
+			</div>
+		</div>
+	</div>
+	
+</div>
+
+<script>
+//GridStack ------------------------------------------------------------------------------------
+var grid = GridStack.init({});
+$("tbody:not(.disable)").on("click", ".datatr", function(event){
+	$(this).siblings(".datatr").removeClass("active");
+	$(this).toggleClass("active");
+});
+//---------------------------------------------------------------------------------------------- 
+// 스크롤 만들기 -----------------------------------------------------------------------------------
+let ptWaitingListDiv = document.querySelector('#ptWaitingListDiv');
+new SimpleBar(ptWaitingListDiv, { autoHide: true });
+
+let patientChartDiv = document.querySelector('#patientChartDiv');
+new SimpleBar(patientChartDiv, { autoHide: true });
+// ---------------------------------------------------------------------------------------------
+</script>

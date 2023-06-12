@@ -1,0 +1,115 @@
+package kr.or.ddit.therapy.service;
+
+import java.util.List;
+
+import javax.inject.Inject;
+
+import org.springframework.stereotype.Service;
+
+import kr.or.ddit.therapy.dao.TherapyDAO;
+import kr.or.ddit.vo.EquipmentStatusRecordVO;
+import kr.or.ddit.vo.MedicalChartVO;
+import kr.or.ddit.vo.MedicalEquipmentVO;
+import kr.or.ddit.vo.PtRecordVO;
+import kr.or.ddit.vo.PtRoomVO;
+import kr.or.ddit.vo.ReceiptionVO;
+
+@Service
+public class TherapyServiceImpl implements TherapyService {
+
+	@Inject
+	private TherapyDAO therapyDAO;
+	
+	@Override
+	public List<ReceiptionVO> ptWaitingPatientList() {
+		List<ReceiptionVO> list = therapyDAO.ptWaitingPatientList();
+		return list;
+	}
+
+	@Override
+	public List<MedicalEquipmentVO> ptEquipmentList() {
+		List<MedicalEquipmentVO> list = therapyDAO.ptEquipmentList();
+		return list;
+	}
+
+	@Override
+	public MedicalEquipmentVO ptEquipmentDetail(int equipmentKey) {
+		return therapyDAO.ptEquipmentDetail(equipmentKey);
+	}
+
+	@Override
+	public List<EquipmentStatusRecordVO> ptEquipmentStatusList(int equipmentKey) {
+		List<EquipmentStatusRecordVO> list = therapyDAO.ptEquipmentStatusList(equipmentKey);
+		return list;
+	}
+	
+	@Override
+	public void ptEquipmentStatusInsert(EquipmentStatusRecordVO eqStatusRecVO) {
+		int rowcnt = therapyDAO.ptEquipmentStatusInsert(eqStatusRecVO);
+	}
+
+	@Override
+	public List<MedicalChartVO> ptEquipmentSelectList(String patientKey) {
+		List<MedicalChartVO> list = therapyDAO.ptEquipmentSelectList(patientKey);
+		return list;
+	}
+
+	@Override
+	public List<PtRoomVO> ptRoomStatusSelect() {
+		return therapyDAO.ptRoomStatusSelect();
+	}
+
+	@Override
+	public void ptRoomStatusUpdate(PtRoomVO ptRoomVO) {
+		int rowcnt = therapyDAO.ptRoomStatusUpdate(ptRoomVO);
+		
+		
+	}
+
+	@Override
+	public void ptEuipmentStatusUpdate(int ptEquipmentKey) {	
+		int rowcnt = therapyDAO.ptEuipmentStatusUpdate(ptEquipmentKey);
+	}
+
+	@Override
+	public void ptRecordInsert(PtRecordVO prRecordVO) {
+		int rowcnt = therapyDAO.ptRecordInsert(prRecordVO);
+		
+	}
+	
+	// 침대 상태 리스트
+	@Override
+	public List<PtRoomVO> ptRoomSelectList() {
+		List<PtRoomVO> list = therapyDAO.ptRoomSelectList();	
+		
+		PtRoomVO vo = new PtRoomVO();
+		
+		return list;
+	}
+
+	@Override
+	public List<PtRecordVO> nowPtBedStatusList() {
+		return therapyDAO.nowPtBedStatusList();
+	}
+
+	@Override
+	public PtRecordVO actingDetail(int ptBedKey) {
+		return therapyDAO.actingDetail(ptBedKey);
+	}
+
+	
+	@Override
+	public void actingCommentUpdate(PtRecordVO ptRecordVO) {
+		int rowcnt = therapyDAO.actingCommentUpdate(ptRecordVO);
+		
+	}
+
+	@Override
+	public ReceiptionVO patientChartDetail(String patientKey, int waitingKey) {
+		return therapyDAO.patientChartDetail(patientKey, waitingKey);
+	}
+
+
+
+
+}

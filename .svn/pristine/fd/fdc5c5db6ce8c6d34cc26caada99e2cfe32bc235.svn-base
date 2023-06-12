@@ -1,0 +1,119 @@
+package kr.or.ddit.radiology.service;
+
+import java.io.File;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Optional;
+
+import javax.annotation.PostConstruct;
+import javax.inject.Inject;
+import javax.servlet.ServletContext;
+
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.context.ApplicationContext;
+import org.springframework.stereotype.Service;
+import org.springframework.web.context.WebApplicationContext;
+
+import kr.or.ddit.attach.service.AttachFileGroupService;
+import kr.or.ddit.medicalChart.dao.MedicalChartDAO;
+import kr.or.ddit.radiology.dao.RadiologyDAO;
+import kr.or.ddit.vo.AttachVO;
+import kr.or.ddit.vo.AttatchFileGroupVO;
+import kr.or.ddit.vo.MedicalChartVO;
+import kr.or.ddit.vo.OrderHistoryVO;
+import kr.or.ddit.vo.RadiologyVO;
+import kr.or.ddit.vo.WaitingHistoryVO;
+import lombok.extern.slf4j.Slf4j;
+
+@Slf4j
+@Service
+public class RadiologyServiceImpl implements RadiologyService {
+	
+	@Inject
+	private RadiologyDAO radiologyDAO;
+	
+	private MedicalChartDAO medicalChartDAO;
+	
+	@Inject
+	private AttachFileGroupService attachFileGroupService;
+
+	@Override
+	public Map<String, List<WaitingHistoryVO>> retrieveWaitingList() {
+		List<WaitingHistoryVO> list = radiologyDAO.selectWaitingList();
+		List<WaitingHistoryVO> xrayWaitingList = new ArrayList<WaitingHistoryVO>();
+		List<WaitingHistoryVO> MRIWaitingList = new ArrayList<WaitingHistoryVO>();
+		Map<String, List<WaitingHistoryVO> > waitingMap = new HashMap<>();
+		log.info("가져온 리스트 = {}", list);
+		if(list != null) {
+			for (WaitingHistoryVO waiting : list) {
+				List<MedicalChartVO> mchartList = waiting.getReceipt().getMChartList();
+				if(mchartList.size() > 0 || mchartList !=null) {
+					for (MedicalChartVO mChart : mchartList) {
+						List<OrderHistoryVO> orderList =  mChart.getOrderHistoryList();
+						if(orderList.size() > 0 || orderList !=null) {
+							for (OrderHistoryVO order : orderList) {
+								if(order.getOrderKind().equals("O003")) {
+									xrayWaitingList.add(waiting);
+									waitingMap.put("xrayList", xrayWaitingList);
+								}else {
+									MRIWaitingList.add(waiting);
+									waitingMap.put("MRIList", MRIWaitingList);
+								}								
+							}
+						}
+					}
+					
+				}
+			}
+		}
+		log.info("서비스 반환  map = {}", waitingMap); 
+		return waitingMap;
+	}
+
+	@Override
+	public RadiologyVO retrieveRadiology(String orderKey) {
+		return radiologyDAO.selectRadiology(orderKey);
+	}
+	
+	//-------------파일 조회
+	@Override
+	public List<AttachVO> viewData(int attGroupNo) {
+		AttatchFileGroupVO fileGroup = attachFileGroupService.selectFileList(attGroupNo);
+		log.info("서비스 파일 조회 fileGroup = {} ", fileGroup);
+		List<AttachVO> fileList = fileGroup.getAttFileList();
+		return fileList;
+	}
+	
+	
+	//----xray파일 업로드
+	@Override
+	public int createxrayData(RadiologyVO radiology, File targetFolder, String receiptKey) {
+		log.info("서비스radiology = {} ", radiology);
+		log.info("서비스targetFolder 지정된 저장폴더 = {} ", targetFolder);
+		log.info("서비스 받은 receiptkey = {}", receiptKey);
+		
+ 		AttatchFileGroupVO atchFileGroup = radiology.getAddFileGroup();
+		Optional.ofNullable(atchFileGroup)
+				.ifPresent((afg)->{
+					attachFileGroupService.insertAttachFileGroup(atchFileGroup, targetFolder);
+					radiology.setAttGroupNo(afg.getAttGroupNo());
+				});
+		int cnt = radiologyDAO.insertXrayRadiology(radiology);
+		int res = 0;
+		// 현재 대기상태를 Y로 변경
+		
+		if(cnt > 0) { // 등록 성공일때 환자의 대기상태를 해당 진료실로 보낸다. - 접수키, 장소키 확인
+			res += radiologyDAO.updateWaitingStatus(receiptKey);
+			log.info("대기 변경이 되었는지 확인 res = {} ", res);
+		}
+		log.info("서비스 후 radiology = {} ", radiology);
+		return res;
+	}
+
+	@Override
+	public List<MedicalChartVO> retrievePreChartList(String patientKey) {
+		return radiologyDAO.selectPreChartList(patientKey);
+	}
+}

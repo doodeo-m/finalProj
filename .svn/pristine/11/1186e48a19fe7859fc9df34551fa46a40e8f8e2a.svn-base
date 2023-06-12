@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="kr.or.ddit.buyer.dao.BuyerDAO">
+	<resultMap type="kr.or.ddit.vo.BuyerVO" id="buyerMap" autoMapping="true">
+		<id property="buyerKey" column="BUYER_KEY" />
+			
+	</resultMap>
+	
+	<!-- 거래처 목록 조회 셀렉트문 -->
+	<select id="selectBuyerList" resultMap="buyerMap">
+		SELECT
+		    BUYER_KEY, BUYER_NAME, BUYER_TEL
+		    , BUYER_CHARGER, BUYER_EMAIL, CONTRACT_DATE
+		    , BUYER_STATUS, CONTRACT_END_DATE, BUYER_ADDRESS
+		FROM BUYER
+	</select>
+	
+	<!-- 거래처 상세 조회하는 셀렉트문 -->
+	<select id="selectBuyer" resultMap="buyerMap" parameterType="string">
+		SELECT
+		    BUYER_NAME,
+		    BUYER_TEL,
+		    BUYER_CHARGER,
+		    BUYER_EMAIL,
+		    CONTRACT_DATE,
+		    BUYER_STATUS,
+		    CONTRACT_END_DATE,
+		    BUYER_ADDRESS
+		FROM
+		    BUYER
+		WHERE   BUYER_KEY = #{buyerKey}
+	</select>
+	
+	
+	
+</mapper>

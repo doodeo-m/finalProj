@@ -1,0 +1,32 @@
+package kr.or.ddit.therapy.service;
+
+import java.util.List;
+
+import javax.inject.Inject;
+
+import org.springframework.stereotype.Service;
+
+import kr.or.ddit.therapy.dao.TherapyDAO;
+import kr.or.ddit.vo.MedicalEquipmentVO;
+import kr.or.ddit.vo.ReceiptionVO;
+
+@Service
+public class TherapyServiceImpl implements TherapyService {
+
+	@Inject
+	private TherapyDAO threrapyDAO;
+	
+	@Override
+	public List<ReceiptionVO> ptWaitingPatientList() {
+		List<ReceiptionVO> list = threrapyDAO.ptWaitingPatientList();
+		
+		return list;
+	}
+
+	@Override
+	public List<MedicalEquipmentVO> ptEquipmentList() {
+		List<MedicalEquipmentVO> list = threrapyDAO.ptEquipmentList();
+		return list;
+	}
+
+}

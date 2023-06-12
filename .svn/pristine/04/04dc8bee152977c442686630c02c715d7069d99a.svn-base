@@ -1,0 +1,60 @@
+package kr.or.ddit.medicalChart.service;
+
+import java.util.List;
+
+import javax.inject.Inject;
+
+import org.springframework.stereotype.Service;
+
+import kr.or.ddit.medicalChart.dao.MedicalChartDAO;
+import kr.or.ddit.vo.CommonCodeVO;
+import kr.or.ddit.vo.DiseaseVO;
+import kr.or.ddit.vo.MedicalChartVO;
+import kr.or.ddit.vo.MedicalEquipmentVO;
+import kr.or.ddit.vo.PreDiagnosisVO;
+import kr.or.ddit.vo.ReceiptionVO;
+import kr.or.ddit.vo.SurgeryKindVO;
+import kr.or.ddit.vo.WaitingHistoryVO;
+
+@Service
+public class MedicalChartServiceImpl implements MedicalChartService {
+	// dao 객체
+	@Inject
+	private MedicalChartDAO medicalChartDAO;
+	
+	//230503 이혜연------------------------------------------
+	@Override
+	public List<SurgeryKindVO> retrieveSurgeryKindList() {
+		return medicalChartDAO.selectSurgeryKindList();
+	}
+
+	//230504 이혜연------------------------------------------
+	@Override
+	public List<DiseaseVO> retrieveDiseaseAllList() {
+		return medicalChartDAO.selectDiseaseAllList();
+	}
+
+	//230506 이혜연------------------------------------------
+	@Override
+	public List<MedicalChartVO> retrieveMedicalChartList(String patientKey) {
+		return medicalChartDAO.selectMedicalChartList(patientKey);
+	}
+	
+	//230507 이혜연------------------------------------------
+	@Override
+	public List<MedicalEquipmentVO> retrieveMedicalEquipmentList() {
+		return medicalChartDAO.selectMedicalEquipmentList();
+	}
+
+	@Override
+	public List<CommonCodeVO> retrieveBodyPartList() {
+		return medicalChartDAO.selectBodyPartList();
+	}
+
+	//230510 이혜연------------------------------------------
+	@Override
+	public List<WaitingHistoryVO> retrieveWaitingList(String officeKey) {
+		return medicalChartDAO.selectWaitingList(officeKey);
+	}
+
+}

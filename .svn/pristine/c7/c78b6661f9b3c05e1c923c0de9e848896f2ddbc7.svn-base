@@ -1,0 +1,120 @@
+ package kr.or.ddit.medicalChart.service;
+
+import java.util.List;
+import java.util.Map;
+
+import javax.inject.Inject;
+
+import org.springframework.stereotype.Service;
+
+import com.fasterxml.jackson.databind.ObjectMapper;
+
+import kr.or.ddit.medicalChart.dao.MedicalChartDAO;
+import kr.or.ddit.vo.CommonCodeVO;
+import kr.or.ddit.vo.DiagnosisVO;
+import kr.or.ddit.vo.DiseaseVO;
+import kr.or.ddit.vo.MedicalChartVO;
+import kr.or.ddit.vo.MedicalEquipmentVO;
+import kr.or.ddit.vo.OrderHistoryVO;
+import kr.or.ddit.vo.PrescriptionVO;
+import kr.or.ddit.vo.SurgeryKindVO;
+import kr.or.ddit.vo.WaitingHistoryVO;
+import lombok.extern.slf4j.Slf4j;
+
+@Slf4j
+@Service
+public class MedicalChartServiceImpl implements MedicalChartService {
+	// dao 객체
+	@Inject
+	private MedicalChartDAO medicalChartDAO;
+	
+	//230503 이혜연------------------------------------------
+	@Override
+	public List<SurgeryKindVO> retrieveSurgeryKindList() {
+		return medicalChartDAO.selectSurgeryKindList();
+	}
+
+	//230504 이혜연------------------------------------------
+	@Override
+	public List<DiseaseVO> retrieveDiseaseAllList() {
+		return medicalChartDAO.selectDiseaseAllList();
+	}
+
+	//230506 이혜연------------------------------------------
+	@Override
+	public List<MedicalChartVO> retrieveMedicalChartList(String patientKey) {
+		return medicalChartDAO.selectMedicalChartList(patientKey);
+	}
+	
+	//230507 이혜연------------------------------------------
+	@Override
+	public List<MedicalEquipmentVO> retrieveMedicalEquipmentList() {
+		return medicalChartDAO.selectMedicalEquipmentList();
+	}
+
+	@Override
+	public List<CommonCodeVO> retrieveBodyPartList() {
+		return medicalChartDAO.selectBodyPartList();
+	}
+
+	//230510 이혜연------------------------------------------
+	@Override
+	public List<WaitingHistoryVO> retrieveWaitingList(String officeKey) {
+		return medicalChartDAO.selectWaitingList(officeKey);
+	}
+
+	@Override
+	public String createChartNo(MedicalChartVO medicalChart) {
+		int cnt = medicalChartDAO.createChartNo(medicalChart);
+		String newChartNo = medicalChart.getChartKey();
+		return newChartNo;
+	}
+	
+	public int insertMchartdata(Map<String, Object> inputMap) {
+		String chartNo = (String) inputMap.get("mChartNo");
+		
+		ObjectMapper mapper = new ObjectMapper();
+		DiagnosisVO diagnosis = mapper.convertValue(inputMap.get("diagnosis"), DiagnosisVO.class);
+		
+		List<Map<String, String>> prescripList = (List<Map<String, String>>) inputMap.get("prescription");
+		List<Map<String, String>> orderlist =  (List<Map<String, String>>) inputMap.get("orderHistory");
+		
+		List<PrescriptionVO> prescriptionList = mapper.convertValue(prescripList,mapper.getTypeFactory().defaultInstance().constructCollectionType(List.class,  PrescriptionVO.class));
+		List<OrderHistoryVO> orderHistoryList = mapper.convertValue(orderlist,mapper.getTypeFactory().defaultInstance().constructCollectionType(List.class,  OrderHistoryVO.class));
+
+		log.info("받은 데이터 확인 chartNo : {}", chartNo);
+		log.info("받은 데이터 확인 diagnosis : {}", diagnosis);
+		log.info("받은 데이터 확인 prescription : {}", prescriptionList);
+		log.info("받은 데이터 확인 orderHistoryList : {}", orderHistoryList);
+		
+		int cnt = 0;
+		// 진단 넣기
+		if(diagnosis != null) {
+			diagnosis.setDiseaseKey(diagnosis.getDiease().getDiseaseKey());
+			diagnosis.setChartKey(chartNo);
+			cnt += medicalChartDAO.insertDiagnosis(diagnosis);
+		}
+		
+		if(prescriptionList.size() > 0 || prescriptionList != null) {
+			// 처방 리스트 넣어주기
+			prescriptionList.forEach((p)->{
+					p.setChartKey(chartNo);
+					int resp = 0;
+					resp += medicalChartDAO.insertPrescription(p);
+					log.info("성공한 처방 리스트 수 resp = {}", resp);
+			});
+		}
+		
+		// 오더 리스트 등록하기
+		if(orderHistoryList.size() > 0 || orderHistoryList !=null) {
+			orderHistoryList.forEach((order)->{
+				order.setChartKey(chartNo); // 차트번호 넣어주기
+				medicalChartDAO.insertOrderHistory(order);
+				log.info("차트 입력 후 확인 orderkey : {}", "확인");
+			});
+		}
+		
+		return cnt;
+	}
+
+}

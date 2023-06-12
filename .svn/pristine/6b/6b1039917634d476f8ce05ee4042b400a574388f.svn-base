@@ -1,0 +1,68 @@
+package kr.or.ddit.emp.service;
+
+import java.util.List;
+
+import javax.inject.Inject;
+
+import org.springframework.security.crypto.password.PasswordEncoder;
+import org.springframework.stereotype.Service;
+
+import kr.or.ddit.emp.dao.EmpDAO;
+import kr.or.ddit.vo.EmpVO;
+import kr.or.ddit.vo.Pagination;
+import lombok.extern.slf4j.Slf4j;
+
+@Slf4j
+@Service
+public class EmpServiceImpl implements EmpService {
+    @Inject
+    private EmpDAO dao;
+
+    @Inject
+    private PasswordEncoder encoder;
+
+    /**
+     * 사원 등록하기 + 입력받은 비밀번호 암호화하기
+     * @param vo
+     * @return
+     */
+    @Override
+    public int insertEmp(EmpVO vo) {
+        encryptBoard(vo);
+        return dao.insertEmp(vo);
+    }
+
+    private void encryptBoard(EmpVO vo) {
+        // 입력받은 평문 비번을 암호화.
+    	
+        String encoded = encoder.encode(vo.getEmpPass());
+        vo.setEmpPass(encoded);
+    }
+
+    // 사원목록 조회
+    @Override
+    public void empList(Pagination<EmpVO> pagination) {
+        int totalRecord = dao.selectTotalRecord(pagination);
+        pagination.setTotalRecord(totalRecord);
+        List<EmpVO> dataList = dao.empList(pagination);
+        pagination.setDataList(dataList);
+
+    }
+
+    @Override
+    public EmpVO selectEmp(String empKey) {
+        return dao.selectEmp(empKey);
+    }
+
+    @Override
+    public void updateEmp(EmpVO vo) {
+        dao.updateEmp(vo);
+    }
+
+    @Override
+    public EmpVO retrieveEmpSecurity(String empId) {
+        return dao.selectEmpSecurity(empId);
+    }
+
+
+}

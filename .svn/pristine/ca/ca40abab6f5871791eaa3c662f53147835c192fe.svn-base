@@ -1,0 +1,29 @@
+package kr.or.ddit.ward.controller;
+
+import java.util.List;
+
+import javax.inject.Inject;
+
+import org.springframework.http.MediaType;
+import org.springframework.stereotype.Controller;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.ResponseBody;
+
+import kr.or.ddit.vo.HospitalizeRecordVO;
+import kr.or.ddit.ward.service.WardService;
+
+@Controller
+@RequestMapping("/ward")
+public class WardController {
+
+	@Inject
+	private WardService wardService;
+
+	@GetMapping(value = "hospitalizationPatientList", produces = MediaType.APPLICATION_JSON_VALUE)
+	@ResponseBody
+	public List<HospitalizeRecordVO> getHospitalizationPatientList() {
+		return wardService.retrieveHospitalizationPatientList();
+	}	
+
+}

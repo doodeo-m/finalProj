@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="kr.or.ddit.product.dao.ProductOrderRecordDAO">
+	<select id="porList">
+		SELECT ORDER_NO, MEDICINE_KEY, ORDER_QUANTITY,
+		ORDER_COST, ORDER_CHARGER,
+		ORDER_DATE
+		FROM PRODUCT_ORDER_RECORD
+	</select>
+	<insert id="insertPor" parameterType="kr.or.ddit.vo.ProductOrderRecordVO">
+		INSERT
+		INTO PRODUCT_ORDER_RECORD (
+		ORDER_NO
+		, MEDICINE_KEY
+		, ORDER_QUANTITY
+		, ORDER_COST
+		, ORDER_CHARGER
+		, ORDER_DATE
+		) VALUES
+			('P' || LPAD(PRODUCT_ORDER_SEQ.NEXTVAL, 5, '0')
+			, #{medicineKey}
+			, #{orderQuantity}
+			, #{orderCost}
+			, #{orderCharger}
+			, SYSDATE
+			)
+	</insert>
+
+	<!-- <foreach collection="list" item="item" index="index" -->
+	<!-- separator=" " open="INSERT ALL" close="SELECT * FROM DUAL"> -->
+	<!-- </foreach> -->
+</mapper>

@@ -1,0 +1,19 @@
+package kr.or.ddit.ward.service;
+
+import java.util.List;
+import java.util.Map;
+
+import kr.or.ddit.vo.HospitalizeRecordVO;
+import kr.or.ddit.vo.WardBedVO;
+
+public interface WardService {
+	// 병동 침상 상태 
+	public List<WardBedVO> retrieveWardBedStatus();
+	
+	// 입원 기록 생성 
+	public void createHospitalizeRecord(Map<String, Object> data);
+
+	// 입원 기록 목록 
+	public List<HospitalizeRecordVO> retrieveHospitalizationPatientList();
+
+}

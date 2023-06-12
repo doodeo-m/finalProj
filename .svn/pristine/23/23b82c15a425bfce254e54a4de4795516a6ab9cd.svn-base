@@ -1,0 +1,56 @@
+package kr.or.ddit.vo;
+
+import java.io.Serializable;
+
+import lombok.AllArgsConstructor;
+import lombok.Data;
+import lombok.EqualsAndHashCode;
+import lombok.NoArgsConstructor;
+import lombok.ToString;
+
+@Data
+@NoArgsConstructor
+@AllArgsConstructor
+public class EmpVO implements Serializable{
+	@EqualsAndHashCode.Include
+	private String empKey;
+	private String empId;
+	@ToString.Exclude
+	private String empPass;
+	private String empName;
+	private Integer empAge;
+	private String empJob;
+	private String tempRegno;
+	private Integer empRegno1;
+	@ToString.Exclude
+	private Integer empRegno2;
+	private String empPhone;
+	private String empAddr;
+	private String empAddrDetail;
+	private String empHireDate;
+	private String empRetireDate;
+	private String empRetireCheck;
+	private Integer empFileGroupNo;
+	private Integer empLicenseNo;
+	
+	
+	private String empRole; 
+	/*
+	 직무 job
+	 원무과 j001 ROLE_ADMIN
+	 의사 j002 ROLE_DOCTOR
+	 간호사 j003 ROLE_USER
+	 물리치료사 j004 ROLE_USER
+	 도수치료사 j005 ROLE_USER
+	 영상촬영 j006 ROLE_USER
+	 */
+	
+	// 진료실 office
+	private String code;
+	private String codeName;
+	private String officeKey;
+	private String officeName;
+	
+	
+	
+}

@@ -1,0 +1,28 @@
+package kr.or.ddit.product.controller;
+
+import java.util.List;
+
+import javax.inject.Inject;
+
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
+
+import kr.or.ddit.product.service.ProductManagementService;
+import kr.or.ddit.vo.ProductManagementVO;
+
+@RestController
+@RequestMapping("/product")
+public class ProductManagementController {
+	@Inject
+	private ProductManagementService service;
+
+	@GetMapping(value = "/list")
+	public List<ProductManagementVO> list() {
+		List<ProductManagementVO> productList = service.productList();
+		return productList;
+	}
+
+	// 여기서 변경하면 저장이 되려나
+
+}

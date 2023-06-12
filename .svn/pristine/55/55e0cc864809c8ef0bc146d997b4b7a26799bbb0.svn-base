@@ -1,0 +1,31 @@
+package kr.or.ddit.attach.service;
+
+import java.io.File;
+
+import kr.or.ddit.vo.AttachVO;
+import kr.or.ddit.vo.AttatchFileGroupVO;
+
+public interface AttachFileGroupService {
+	/**
+	 * 파일 그룹 등록
+	 * @param fileGroup
+	 * @return
+	 */
+	public int insertAttachFileGroup(AttatchFileGroupVO fileGroup, File saveFolder);
+	
+	/**
+	 * 파일 1개 조회
+	 * @param filecondition
+	 * @return
+	 */
+	public AttachVO selectAttachFile(AttachVO filecondition);
+
+
+	/**
+	 * 파일 리스트 조회
+	 * @param fileGroupNo
+	 * @return
+	 */
+	public AttatchFileGroupVO selectFileList(int fileGroupNo);
+
+}

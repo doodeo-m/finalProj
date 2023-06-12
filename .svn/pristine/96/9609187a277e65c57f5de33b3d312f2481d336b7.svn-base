@@ -1,0 +1,152 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="kr.or.ddit.ward.dao.WardDAO">
+
+	<resultMap type="kr.or.ddit.vo.HospitalizeRecordVO" id="hospitalizeRecordMap" autoMapping="true">
+		<association property="patient" javaType="kr.or.ddit.vo.PatientVO" autoMapping="true">
+			<id property="patientKey" column="PATIENT_KEY"/>
+	         <id property="patientName" column="PATIENT_NAME"/>
+	         <id property="patientSex" column="PATIENT_SEX"/>
+	         <id property="patientAge" column="PATIENT_AGE"/>
+	         <id property="patientTypeName" column="PATIENT_TYPE_NAME"/>
+		</association>
+	</resultMap>
+
+	<resultMap type="kr.or.ddit.vo.AttatchFileGroupVO" id="attachMap">
+		<id property="attGroupNo" column="ATT_GROUP_NO"/>
+		<collection property="attFileList" ofType="kr.or.ddit.vo.AttachVO" autoMapping="true"/>
+	</resultMap>
+
+	<resultMap type="kr.or.ddit.vo.MedicalChartVO" id="medicalChartMap" autoMapping="true">
+		<id property="chartKey" column="CHART_KEY"/>
+		<collection property="orderHistoryList" ofType="kr.or.ddit.vo.OrderHistoryVO" autoMapping="true"/>
+	</resultMap>
+
+   
+   <select id="selectHospitalizePatientList" resultMap="hospitalizeRecordMap">
+			SELECT
+				HOSPITALIZE_RECORD_KEY
+				, HR.PATIENT_KEY
+				, PATIENT_NAME
+				, PATIENT_AGE
+				, PATIENT_SEX
+	            , PATIENT_REGNO1
+				, WARD_KEY
+                , (SELECT CODE_NAME FROM COMMON_CODE WHERE CODE=PATIENT_TYPE) AS PATIENT_TYPE_NAME
+                , ORDER_KEY
+			FROM HOSPITALIZE_RECORD HR LEFT OUTER JOIN PATIENT P ON (HR.PATIENT_KEY = P.PATIENT_KEY)    
+			                            LEFT OUTER JOIN WARD_BED WB ON (HR.WARD_BED_KEY = WB.WARD_BED_KEY)
+	</select>
+  
+	<select id="selectWardBedStatus" resultType="kr.or.ddit.vo.WardBedVO">
+
+		SELECT 
+		W.WARD_KEY 
+		, WB.WARD_BED_KEY
+		, (SELECT CODE_NAME FROM COMMON_CODE WHERE CODE = WARD_BED_STATUS) AS WARD_BED_STATUS
+		, (SELECT CODE_NAME FROM COMMON_CODE WHERE CODE = WARD_GRADE) AS WARD_GRADE
+		, PATIENT_NAME
+		, EXPECTED_CHECK_OUT_DATE
+		FROM WARD_BED WB 
+		        RIGHT OUTER JOIN WARD W ON (WB.WARD_KEY = W.WARD_KEY)
+		        LEFT OUTER JOIN (    
+		            SELECT WARD_BED_KEY, PATIENT_NAME, EXPECTED_CHECK_OUT_DATE
+		            FROM HOSPITALIZE_RECORD HR LEFT OUTER JOIN PATIENT P ON (HR.PATIENT_KEY = P.PATIENT_KEY)
+		            WHERE EXPECTED_CHECK_OUT_DATE > SYSDATE AND CHECK_OUT_DATE IS NULL
+		    ) A ON (WB.WARD_BED_KEY = A.WARD_BED_KEY)
+		ORDER BY WARD_BED_KEY
+
+	</select>
+	
+	<select id="selectMedicalChart" parameterType="String" resultType="kr.or.ddit.vo.MedicalChartVO">
+		SELECT 
+			CHART_CONT
+			, (SELECT DISEASE_NM_KR FROM DISEASE WHERE DISEASE.DISEASE_KEY = D.DISEASE_KEY) AS DISEASE_NAME
+			, (SELECT SURGERY_KIND_NAME FROM SURGERY_KIND WHERE SURGERY_KIND_KEY = ORDER_KIND) AS ORDER_NAME
+			, (SELECT EMP_NAME FROM EMP WHERE EMP.EMP_KEY = MC.EMP_KEY) AS EMP_NAME
+			FROM MEDICAL_CHART MC LEFT OUTER JOIN ORDER_HISTORY OH ON(MC.CHART_KEY = OH.CHART_KEY)
+			                        LEFT OUTER JOIN DIAGNOSIS D ON (MC.CHART_KEY = D.CHART_KEY)
+			                        LEFT OUTER JOIN PATIENT P ON (MC.PATIENT_KEY = P.PATIENT_KEY)
+			WHERE MC.CHART_KEY = (
+			    SELECT CHART_KEY 
+			    FROM ORDER_HISTORY
+			    WHERE ORDER_KEY = #{orderKey}
+			) AND ORDER_KIND LIKE 'S%'
+	</select>
+	
+	<insert id="insertHospitalizeRecord" parameterType="kr.or.ddit.vo.HospitalizeRecordVO">
+		
+        
+         INSERT INTO HOSPITALIZE_RECORD (
+		    HOSPITALIZE_RECORD_KEY
+		    , PATIENT_KEY
+		    , WARD_BED_KEY
+		    , ORDER_KEY
+		    , HOSPITALIZE_DOCTOR_KEY
+		    , CHECK_IN_DATE
+		    , EXPECTED_CHECK_OUT_DATE
+		 )
+		SELECT 
+		    'HR' || LPAD(HOSPITALIZE_RECORD_SEQ.NEXTVAL, 5,'0') AS HOSPITALIZE_RECORD_KEY
+		    , A.*
+		FROM(
+		    SELECT 
+		        PATIENT_KEY
+		        , #{wardBedKey} AS WARD_BED_KEY
+		        , ORDER_KEY
+		        , EMP_KEY AS HOSPITALIZE_DOCTOR_KEY
+		        , SYSDATE AS CHECK_IN_DATE
+		        , SYSDATE + (SELECT SURGERY_HOSPITALIZE_AVG FROM SURGERY_KIND WHERE SURGERY_KIND_KEY=ORDER_KIND) AS EXPECTED_CHECK_OUT_DATE
+		    FROM MEDICAL_CHART MC LEFT OUTER JOIN ORDER_HISTORY OH ON (MC.CHART_KEY = OH.CHART_KEY)
+		    WHERE PATIENT_KEY = #{patientKey} AND ORDER_KIND LIKE 'S%'
+		    ORDER BY MC.CHART_KEY DESC
+		)A
+		WHERE ROWNUM = 1
+					
+	</insert>
+	
+	<insert id="insertNurseChart" parameterType="kr.or.ddit.vo.NurseChartVO">
+		
+		INSERT INTO NURSE_CHART(
+		    NURSE_CHART_KEY
+		    , HOSPITALIZE_RECORD_KEY
+		    , NURSE_CHART_WRITER
+		    , NURSE_CHART_DATE
+		    , NURSE_CHART_CONTENT
+		) VALUES (
+		    'N' || LPAD(NURSE_CHART_SEQ.NEXTVAL, 5, '0')
+		    , #{hospitalizeRecordKey}
+		    , #{nurseChartWriter}
+		    , SYSDATE
+		    , #{nurseChartContent}
+		)
+	</insert>
+	
+	<select id="selectDietKindList" resultType="kr.or.ddit.vo.CommonCodeVO">
+		SELECT
+		CODE, CODE_NAME
+		FROM COMMON_CODE
+		WHERE CODE_DESCRIPTION = 'Diet Kind'
+	</select>
+	
+	<insert id="insertDiet" parameterType="kr.or.ddit.vo.DietVO">
+		INSERT INTO DIET (
+		    DIET_KEY
+		    , HOSPITALIZE_RECORD_KEY
+		    , DIET_KIND
+		    , DIET_INTAKE
+		    , DIET_MEALS
+		    , DIET_WRITER
+		) VALUES (
+			'D' || LPAD(DIET_SEQ.NEXTVAL, 5, '0')
+		    , #{hospitalizeRecordKey}
+		    , #{dietKind}
+		    , #{dietIntake}
+		    , #{dietMeals}
+		    , #{dietWriter}
+		)
+		
+	</insert>
+	
+	
+</mapper>

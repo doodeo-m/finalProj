@@ -1,0 +1,154 @@
+package kr.or.ddit.poi.controller;
+
+import java.io.FileInputStream;
+import java.io.InputStream;
+import java.text.SimpleDateFormat;
+import java.util.Date;
+
+import javax.inject.Inject;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+
+import org.apache.poi.xssf.usermodel.XSSFSheet;
+import org.apache.poi.xssf.usermodel.XSSFWorkbook;
+import org.springframework.stereotype.Controller;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.ResponseBody;
+
+import kr.or.ddit.patient.service.PatientService;
+import kr.or.ddit.poi.service.PoiCostInsertService;
+import kr.or.ddit.vo.PatientVO;
+import lombok.extern.slf4j.Slf4j;
+
+@Slf4j
+@Controller
+@RequestMapping("/poi")
+public class PoiController {
+	
+	@Inject
+	private PatientService service;
+	
+	@Inject
+	private PoiCostInsertService pservice;
+
+    @GetMapping("/sample")
+    public void sample(HttpServletRequest request, HttpServletResponse response,
+    		@RequestParam String poiPatientKey
+    		) throws Exception {
+    	
+    	log.info("POI를 위한 환자키~~~~~~~~~~~~~~~~ {} ",poiPatientKey);
+		PatientVO psmc = service.selectMedicalCertificate(poiPatientKey);
+		
+		log.info("psmc 서비스 실행 후 : {}", psmc);
+    	
+        String filename = "";
+        String formPath = request.getServletContext().getRealPath("/resources/ajm/excel/medicalcheck.xlsx"); // 양식파일 넣어두기
+
+        log.info("파일경로 {}", formPath);
+        InputStream fis = new FileInputStream(formPath);
+        XSSFWorkbook form_wb = new XSSFWorkbook(fis);
+        XSSFSheet form_sheet = form_wb.getSheetAt(0);
+
+        //양식에 넣어줄 데이터
+        String chartNo = psmc.getChart().getChartKey(); // 차트번호
+        String name = psmc.getPatientName(); // 이름
+        String gender = psmc.getPatientSex();
+        String birth = String.valueOf(psmc.getPatientRegno1());
+        String phone = psmc.getPatientPn();
+        String add = psmc.getPAddress();
+        String use = "병가";
+        String code = psmc.getChart().getChartKey();
+        String text = psmc.getDisease().getDiseaseNmKr() == null ? " " : psmc.getDisease().getDiseaseNmKr();
+        Date nowDate = new Date();
+        SimpleDateFormat simpleDateFormat = new SimpleDateFormat("yyyy년 MM월 dd일");
+        String strNowDate = simpleDateFormat.format(nowDate);
+
+//        CellStyle cellStyle = form_wb.createCellStyle();
+//        cellStyle.setAlignment(HorizontalAlignment.CENTER);
+
+        //엑셀 폼에 넣기 (로우와 셀 주의!!!)
+        form_sheet.getRow(1).createCell(1).setCellValue(chartNo);   //  차트번호
+        form_sheet.getRow(2).createCell(2).setCellValue(name);      // 엑셀 3행 C열
+        form_sheet.getRow(2).createCell(5).setCellValue(gender);    // 2행 C열
+        form_sheet.getRow(3).createCell(2).setCellValue(birth);
+        form_sheet.getRow(3).createCell(5).setCellValue(phone);
+        form_sheet.getRow(4).createCell(2).setCellValue(add);
+        form_sheet.getRow(5).createCell(1).setCellValue(use);
+        form_sheet.getRow(7).createCell(1).setCellValue(code);
+        form_sheet.getRow(8).createCell(1).setCellValue(text);
+        form_sheet.getRow(10).createCell(0).setCellValue(strNowDate);
+
+        //form_sheet.getRow(10).createCell(0).setCellStyle();
+
+        //파일 이름, 형식, 헤더 설정
+        filename = "medicalcheck.xlsx";    // 파일 저장할 때 이름
+        response.setContentType("ms-vnd/excel;charset=EUC-KR");
+        response.setHeader("Content-Disposition", "attachment; filename=" + filename);
+        form_wb.write(response.getOutputStream());
+        form_wb.close();
+    }
+
+    /**
+     * POI발급 버튼을 누르면 수납내역에 서류발급에 대한 금액이 추가되도록 하기
+     * @param receiptKey
+     * @return
+     */
+    @PostMapping(value = "/poicontrollerinsertPay", produces = "text/plain;charset=utf-8")
+    @ResponseBody
+    public String insertPay (@RequestParam String receiptKey) {
+    	log.info("접수키가 잘 오는지 확인해보자!!!!!!!!!!!!!!!!!!!! {}", receiptKey);
+    	int insertDocPay = pservice.insertDocPay(receiptKey);
+    	return "성공 " + insertDocPay + "개";
+    }
+
+
+    /**
+     * 수납이 완료된 후에 수납 내역 출력할 POI
+     * @throws Exception
+     */
+    @GetMapping("/medicalbill")
+    public void medicalbill(HttpServletRequest request, HttpServletResponse response,
+                       @RequestParam String param
+    ) throws Exception {
+        log.info("param 확인하기~~~~~~~~~~~~~~~~ {} ",param);
+
+
+        String filename = "";
+        String formPath = request.getServletContext().getRealPath("/resources/ajm/excel/medicalbillreceipt.xlsx"); // 양식파일 넣어두기
+
+        log.info("파일경로 {}", formPath);
+        InputStream fis = new FileInputStream(formPath);
+        XSSFWorkbook form_wb = new XSSFWorkbook(fis);
+        XSSFSheet form_sheet = form_wb.getSheetAt(0);
+
+        //양식에 넣어줄 데이터
+        // 변수 선언하기
+
+        /*
+        //엑셀 폼에 넣기 (로우와 셀 주의!!!)
+        form_sheet.getRow(1).createCell(1).setCellValue(chartNo);   //  차트번호
+        form_sheet.getRow(2).createCell(2).setCellValue(name);      // 엑셀 3행 C열
+        form_sheet.getRow(2).createCell(5).setCellValue(gender);    // 2행 C열
+        form_sheet.getRow(3).createCell(2).setCellValue(birth);
+        form_sheet.getRow(3).createCell(5).setCellValue(phone);
+        form_sheet.getRow(4).createCell(2).setCellValue(add);
+        form_sheet.getRow(5).createCell(1).setCellValue(use);
+        form_sheet.getRow(7).createCell(1).setCellValue(code);
+        form_sheet.getRow(8).createCell(1).setCellValue(text);
+        form_sheet.getRow(10).createCell(0).setCellValue(strNowDate);
+        */
+
+        //form_sheet.getRow(10).createCell(0).setCellStyle();
+
+        //파일 이름, 형식, 헤더 설정
+        filename = "medicalbillreceipt.xlsx";    // 파일 저장할 때 이름
+        response.setContentType("ms-vnd/excel;charset=EUC-KR");
+        response.setHeader("Content-Disposition", "attachment; filename=" + filename);
+        form_wb.write(response.getOutputStream());
+        form_wb.close();
+    }
+
+}

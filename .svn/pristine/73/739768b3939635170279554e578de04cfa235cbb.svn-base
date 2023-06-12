@@ -1,0 +1,104 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="kr.or.ddit.medicalChart.dao.MedicalChartDAO">
+
+
+<!-- 
+	환자 테이블 = 부모테이블
+	접수테이블 = 자식테이블
+	진료차트테이블
+	waitingMap
+ -->
+
+<resultMap type="kr.or.ddit.vo.ReceiptionVO" id="waitingMap" autoMapping="true">
+	<id property="receiptKey" column="RECEIPT_KEY" />
+	<association property="patient" javaType="kr.or.ddit.vo.PatientVO" autoMapping="true">
+		<id property="patientKey" column="PATIENT_KEY"/>
+		<association property="preDiagnosis" javaType="kr.or.ddit.vo.PreDiagnosisVO" autoMapping="true"/>
+	</association>
+	<collection property="MChartList" ofType="kr.or.ddit.vo.MedicalChartVO" autoMapping="true"/>
+</resultMap>
+
+
+	<select id="selectSurgeryKindList" resultType="kr.or.ddit.vo.SurgeryKindVO">
+		select * from SURGERY_KIND
+	</select>
+	<!-- 질병코드리스트 출력 -->
+	<select id="selectDiseaseAllList" resultType="kr.or.ddit.vo.DiseaseVO">
+		SELECT 
+			DISEASE_KEY
+			, DISEASE_NM_EN
+			, DISEASE_NM_KR
+		FROM DISEASE
+		ORDER BY DISEASE_KEY
+	</select>
+	
+	<!-- 진료실 대기환자 리스트 -->
+	<select id="selectReceiptionList" parameterType="string" resultMap="waitingMap">
+		SELECT 
+		    A.RECEIPT_KEY
+		    , A.PATIENT_KEY
+		    , A.OFFICE_KEY 
+		    , A.RECEIPT_DATE
+		    , A.RECEIPT_REASON
+		    , A.RECEIPT_STATUS
+		
+		    , B.PATIENT_KEY, B.PATIENT_NAME, B.PATIENT_AGE, B.PATIENT_SEX
+		    , B.PATIENT_REGNO1, B.PATIENT_REGNO2, B.PATIENT_PN, B.PATIENT_ADDRESS
+		    , B.PATIENT_ADDRESS_DETAIL, B.PATIENT_TYPE, B.PATIENT_SIGNIFICANT
+		    
+		    , X.CODE_NAME AS TYPE
+		    
+		    , C.EMP_KEY, C.STATUS, D.EMP_NAME
+            
+            , E.PRE_DIAGNOSIS_KEY
+            , E.PRE_DIAGNOSIS_EXPERIENCE
+            , E.PRE_DIAGNOSIS_DISEASE
+            , E.PRE_DIAGNOSIS_ALLERGY
+            , E.PRE_DIAGNOSIS_PREGNANCY
+            , E.PRE_DIAGNOSIS_CHOICE
+            , E.PRE_DIAGNOSIS_DATE
+            
+		FROM RECEIPT A LEFT OUTER JOIN PATIENT B ON (A.PATIENT_KEY = B.PATIENT_KEY)
+		     LEFT OUTER JOIN COMMON_CODE X ON (X.CODE = B.PATIENT_TYPE)
+		     LEFT OUTER JOIN DOCTOR_OFFICE C ON (A.OFFICE_KEY = C.OFFICE_KEY)
+		     LEFT OUTER JOIN EMP D ON (C.EMP_KEY = D.EMP_KEY)
+             LEFT OUTER JOIN PRE_DIAGNOSIS E ON (A.PATIENT_KEY = E.PATIENT_KEY)
+		WHERE A.OFFICE_KEY =#{officeKey}
+	</select>
+	
+	<!-- 환자 과거 차트 조회 -->
+	<select id="selectMedicalChartList" parameterType="string" resultType="kr.or.ddit.vo.MedicalChartVO">
+		  SELECT 
+            CHART_KEY
+            , RECEIPT_KEY
+            , PATIENT_KEY
+            , EMP_KEY
+            , CHART_DATE
+            , CHART_CONT
+        FROM MEDICAL_CHART
+        WHERE PATIENT_KEY = #{patientKey}
+	</select>
+	
+	<!-- 물리치료실 장비 불러오기 -->
+	<select id="selectMedicalEquipmentList" resultType="kr.or.ddit.vo.MedicalEquipmentVO">
+		SELECT
+		    EQUIPMENT_KEY
+		    , EQUIPMENT_NAME
+		    , BUYER_KEY
+		    , EQUIPMENT_LOCATION
+		    , EQUIPMENT_MODEL
+		    , EQUIPMENT_STATUS
+		    FROM MEDICLA_EQUIPMENT
+		WHERE EQUIPMENT_STATUS ='US01' AND EQUIPMENT_LOCATION ='L004'
+	</select>
+	
+	<!-- 신체부위 목록 불러오기 -->
+	<select id="selectBodyPartList" resultType="kr.or.ddit.vo.CommonCodeVO">
+		SELECT 
+			CODE, CODE_NAME
+			FROM COMMON_CODE
+		WHERE CODE LIKE 'B%'
+	</select>
+	
+</mapper>

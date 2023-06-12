@@ -1,0 +1,44 @@
+package kr.or.ddit.mTherapy.dao;
+
+import java.util.List;
+
+import org.apache.ibatis.annotations.Mapper;
+import org.apache.ibatis.annotations.Param;
+
+import kr.or.ddit.vo.MtRecordVO;
+import kr.or.ddit.vo.ReceiptionVO;
+
+@Mapper
+public interface MTherapyDAO {
+
+	/**
+	 * 도수치료 대기환자조회
+	 * @return List<ReceiptionVO>
+	 */
+	public List<ReceiptionVO> mtWaitingPatientList();
+	
+	
+	/**
+	 * 환자 진료 차트
+	 * @param patientKey
+	 * @param waitingKey
+	 * @return ReceiptionVO
+	 */
+	public ReceiptionVO patientChartDetail(@Param("patientKey") String patientKey,@Param("waitingKey") int waitingKey);
+	
+	
+	/**
+	 * 도수치료 기록 추가
+	 * @param mtRecordVO
+	 * @return int
+	 */
+	public int mtRecordInsert(MtRecordVO mtRecordVO);
+	
+	
+	/**
+	 * 도수치료 평가 업데이트 
+	 * @param mtRecordVO
+	 * @return int
+	 */
+	public int mtRecordAssessUpdate(MtRecordVO mtRecordVO);
+}

@@ -1,0 +1,655 @@
+<%@ page language="java" contentType="text/html; charset=UTF-8" pageEncoding="UTF-8" %>
+    <%@ taglib uri="http://java.sun.com/jsp/jstl/core" prefix="c" %>
+
+        <script src='${cPath }/resources/js/dist/index.global.js'></script>
+        <script src='${cPath }/resources/js/dist/ko.global.js'></script>
+        <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+        <style>
+            .fc-icon-chevron-right:before {
+                content: "";
+            }
+
+            .fc-icon-chevron-left:before {
+                content: "";
+            }
+
+            html,
+            body {
+                margin: 0;
+                padding: 0;
+                font-family: Arial, Helvetica Neue, Helvetica, sans-serif;
+                font-size: 14px;
+            }
+
+            #calendar-container {
+                position: relative;
+                z-index: 1;
+            }
+
+            #calendar {
+                max-width: 1100px;
+                margin: 20px auto;
+            }
+
+            .modal {
+                position: fixed;
+                width: 100%;
+                /* fixed일 때는 height:100% 동작 */
+                height: 100%;
+                left: 0px;
+                top: 0px;
+                background-color: rgba(0, 0, 0, 0.274);
+                /* 무조건 크겡! */
+                z-index: 314;
+                display: none;
+            }
+
+            .detailModal {
+                position: fixed;
+                width: 100%;
+                /* fixed일 때는 height:100% 동작 */
+                height: 100%;
+                left: 0px;
+                top: 0px;
+                background-color: rgba(0, 0, 0, 0.274);
+                /* 무조건 크겡! */
+                z-index: 315;
+                display: none;
+            }
+
+
+            .modalCont {
+                width: 400px;
+                height: 260px;
+                /* 수평 가운데 정렬 */
+                margin-top: 15%;
+                margin-left: 38%;
+                padding-left: 20px;
+                border-radius: 5%;
+                background-color: rgb(255, 255, 255);
+                color: rgb(9, 9, 8);
+            }
+
+            .detailModalCont {
+                width: 400px;
+                height: 300px;
+                /* 수평 가운데 정렬 */
+                margin-top: 15%;
+                margin-left: 38%;
+                padding-left: 20px;
+                border-radius: 5%;
+                background-color: rgb(255, 255, 255);
+                color: rgb(9, 9, 8);
+            }
+
+            .modalSubmit {
+                margin-left: 230px;
+            }
+
+            .modalInput {
+                width: 250px;
+                height: 40px;
+                font-size: 15px;
+                border: 0;
+                border-radius: 15px;
+                outline: none;
+                padding-left: 10px;
+                background-color: rgb(233, 233, 233);
+            }
+
+            .calendarCenter {
+                margin: 0 auto;
+            }
+
+            /* IE */
+            select::-ms-expand {
+                display: none;
+            }
+
+            .select {
+                width: 150px;
+                height: 35px;
+                background: url('https://freepikpsd.com/media/2019/10/down-arrow-icon-png-7-Transparent-Images.png') calc(100% - 5px) center no-repeat;
+                background-size: 20px;
+                padding: 5px 30px 5px 10px;
+                border-radius: 4px;
+                outline: 0 none;
+            }
+
+            .select option {
+                background: black;
+                color: #fff;
+                padding: 3px 0;
+            }
+
+            .card {
+                border-radius: 15px;
+            }
+
+            .card-header h5 {
+                color: gray;
+            }
+
+            .table {
+                text-align: center;
+                vertical-align: middle;
+                font-size: 9px;
+            }
+
+            .table thead {
+                background-color: #405189c7;
+                color: white;
+            }
+        </style>
+
+        <script>
+            let calendar = null;
+
+
+
+            $(function () {
+                const Calendar = FullCalendar.Calendar; // 캘린더 api 생성하기
+
+                const calendarEl = document.getElementById('calendar'); // body에 캘린더 넣을 부분 태그선택
+
+                calendar = new Calendar(calendarEl, {
+                    selectable: true,
+                    selectHelper: true,
+                    select: function (res) {
+                        console.log("select했을때 머가오는지 체킁", res)
+                        modal.show()
+                    },
+                    headerToolbar: {
+                        left: 'prev,next today',
+                        center: 'title',
+                        right: 'dayGridMonth,timeGridWeek,timeGridDay'
+                    },
+                    events: '${cPath}/reserveList'  // url 서블릿 주소 써주면 됨!
+                    ,
+                    editable: true, // 편집가능
+
+                    locale: 'ko', // 한국어
+                    eventDrop: function (info) {    // 드래그해서 위치 지정하면 날짜 수정
+                        let id = info.event.id;
+                        let title = info.event.title;
+                        let start = info.event.start.toISOString().substr(0, 10);
+                        $.ajax({
+                            url: "",
+                            type: "post",
+                            data: { id: id, title: title, start: start },
+                            success: function () {
+                                alert("일정이 변경되었습니다. ")
+                            }
+                        })
+                    },
+                    // 일정 클릭하면 상세보기 모달로 보여주기
+                    eventClick: function (info) {
+                        console.log(info.event.title)
+                        $("#scheduleKey").val(info.event.id);
+                        $("#patientName").val(info.event.title);
+                        $("#bedNum").val(info.event.extendedProps.bed)
+                        $("#charger").val(info.event.extendedProps.charger)
+                        /*
+                        $.ajax({
+                            url: "",
+                            type: "post",
+                            data: {
+                                id: id
+                            },
+                            success: function (res) {
+                            }
+                        })
+                        */
+                        detailModal.show();
+                    }
+
+                });
+                calendar.render();
+            });
+
+
+        </script>
+
+        <div class="grid-stack"> <!-- 그리드스택 공간 -->
+
+            <div class="grid-stack-item card" gs-x="0" gs-y="0" gs-w="2" gs-h="2"> <!-- grid-stack-item을 적어야 적용됨 -->
+                <div class="grid-stack-item-content">
+                    <div class="card-header">
+                        <h5>입원 대기 환자 목록</h5>
+                    </div>
+                    <div class="card-body">
+                        <table class="table table-bordered">
+                            <thead>
+                                <tr>
+                                    <th>코드</th>
+                                    <th>환자명</th>
+                                    <th>희망등급</th>
+                                    <th>병실배정</th>
+                                </tr>
+                            </thead>
+                            <tbody id="waitingPatientList">
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+
+            <div class="grid-stack-item card" gs-x="2" gs-y="" gs-w="2" gs-h="2"> <!-- grid-stack-item을 적어야 적용됨 -->
+                <div class="grid-stack-item-content">
+                    <div class="card-header">
+                        <h5>수술 대기 환자 목록</h5>
+                    </div>
+                    <div class="card-body">
+                        <table class="table table-bordered">
+                            <thead>
+                                <tr>
+                                    <th>코드</th>
+                                    <th>환자명</th>
+                                </tr>
+                            </thead>
+                            <tbody id="waitingSurgeryList">
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+
+
+
+            <div class="grid-stack-item card" gs-x="4" gs-y="0" gs-w="4" gs-h="5">
+                <div class="grid-stack-item-content">
+                    <div class="card-header">
+                        <h5>병동 배치 상황</h5>
+                    </div>
+                    <div class="card-body" id="wardStatus">
+
+                        <span></span>
+                        <table class="table table-bordered">
+                            <thead>
+
+                            </thead>
+                            <tbody>
+
+                            </tbody>
+                        </table>
+                        <br>
+
+                        <span></span>
+                        <table class="table table-bordered">
+                            <thead>
+
+                            </thead>
+                            <tbody>
+
+                            </tbody>
+                        </table>
+                        <br>
+
+                        <span></span>
+                        <table class="table table-bordered">
+                            <thead>
+
+                            </thead>
+                            <tbody>
+
+                            </tbody>
+                        </table>
+                        <br>
+
+                        <span></span>
+                        <table class="table table-bordered">
+                            <thead>
+
+                            </thead>
+                            <tbody>
+
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+
+            <div class="grid-stack-item card" gs-x="8" gs-y="0" gs-w="4" gs-h="5" gs-no-resize="true" gs-no-move="true"
+                gs-locked="true"> <!-- grid-stack-item을 적어야 적용됨 -->
+                <div class="grid-stack-item-content">
+                    <div class="card-header">
+                        <h5>수술 일정</h5>
+                    </div>
+                    <div class="card-body" id='calendar'>
+                    </div>
+                </div>
+            </div>
+
+            
+
+        <!-- 모달 ------------------------------------------------------------------------------------------------------------------------------->
+
+        <!-- 날짜를 클릭하면 나오는 모달 -->
+        <div id="modal" class="modal">
+            <div id="modalCont" class="modalCont">
+                <br> <br>
+                담당자 : <input id="modalInput" class="modalInput" type="text" value="${authEmp.empName}" disabled><br>
+                <br>
+                환자번호 :
+                <select id="patientName" class="select">
+                    <option disabled selected>환자이름 🚑</option>
+                    <option value="apple">apple</option>
+                    <option value="orange">orange</option>
+                    <option value="grape">grape</option>
+                    <option value="melon">melon</option>
+                </select><br> <br>
+                침상번호 : <input id="modalInput" class="modalInput" type="text" placeholder="침상번호">
+                <br> <br>
+                <button id="modalSubmit" class="modalSubmit" onclick="allSave()">등록하기</button>
+                <button id="modalButton" onclick="modalClose()">X</button>
+            </div>
+        </div>
+
+        <!-- 일정을 클릭하면 나오는 모달 -->
+        <div id="detailModal" class="detailModal">
+            <div id="detailModalCont" class="detailModalCont">
+                <br>
+                스케줄 번호 : <input id="scheduleKey" class="modalInput" type="text">
+                <br><br>
+                환자명 : <input id="patientName" class="modalInput" type="text">
+                <br><br>
+                침대번호 : <input id="bedNum" class="modalInput" type="text">
+                <br><br>
+                담당자 : <input id="charger" class="modalInput" type="text">
+                <br> <br>
+                <button class="modalSubmit" onclick="modify()">수정하기</button>
+                <button onclick="detailModalClose()">X</button>
+            </div>
+        </div>
+
+
+
+        <script>
+
+            const modal = $('#modal')
+            const modalClose = () => {
+                modal.hide();
+            }
+            const detailModal = $('.detailModal')
+            const detailModalClose = () => {
+                detailModal.hide();
+            }
+
+            // 등급 정보
+            if (!localStorage.getItem('gradeList')) {
+                getGradeList();
+            }
+
+            // 등급 리스트 불러오기
+            function getGradeList() {
+                $.ajax({
+                    url: "${cPath}/reservation/gradeList",
+                    method: "get",
+                    dataType: "json",
+                    success: (resp) => {
+                        localStorage.setItem('gradeList', JSON.stringify(resp));
+                    }
+                })
+            }
+
+            // 입원 대기 환자 목록 tbody selected
+            let waitingPatientList = $('#waitingPatientList');
+
+            // 희망 등급 변동시 호출 메서드
+            waitingPatientList.on('change', '.graddSelect', function () {
+                console.log("바꼈슈");
+                let selectedGrade = $(this).find('option:selected').val();
+                let patientInfo = $(this).parents('tr').data("patientInfo")
+                console.log("Data", patientInfo);
+                let data = {
+                    waitingKey: patientInfo.waitingKey
+                    , wardGrade: selectedGrade
+                }
+                $.ajax({
+                    url: "${cPath}/reservation/wardGrade",
+                    method: "patch",
+                    data: JSON.stringify(data),
+                    contentType: "application/json",
+                    dataType: "json",
+                    beforeSend: function (xhr) {   /*데이터를 전송하기 전에 헤더에 csrf값을 설정한다*/
+                        xhr.setRequestHeader("${_csrf.headerName}", "${_csrf.token}");
+                    },
+                    success: (resp) => {
+                        console.log(resp);
+                    }
+                })
+            });
+
+            let selectedPatientInfo = null;
+
+            // 배치 버튼 눌렀을 때 호출되는 메서드
+            waitingPatientList.on('click', '.assignBtn', function () {
+                console.log("배치버튼 눌렀슈! 해당 환자 정보 저장해유~");
+                selectedPatientInfo = $(this).parents('tr').data("patientInfo")
+            })
+
+
+
+
+
+            // 대기 환자 목록 불러오기
+            function getWaitingPatientList() {
+                let gradeList = JSON.parse(localStorage.getItem('gradeList'));
+
+                $.ajax({
+                    url: "${cPath}/reservation/waitingPatientList",
+                    method: "get",
+                    dataType: "json",
+                    success: (resp) => {
+                        console.log("대기 환자 목록 데이터 체킁", resp);
+                        waitingPatientList.empty();
+                        $.each(resp, function (i, patient) {
+                           
+                            let patientWardGrade = patient.wardGrade;
+                            let options = [];
+                            let stOption = $('<option>').html("선택").val("");
+                            options.push(stOption);
+                           
+                            $.each(gradeList, function (i, grade) {
+                                let option = $('<option>').val(grade.code).html(grade.codeName);
+                                if (patientWardGrade == grade.code) {
+                                    option.attr("selected", "selected");
+                                }
+
+                                options.push(option);
+                            });
+
+                            let select = $('<select>').append(options).addClass('form-select-sm').addClass("graddSelect");
+                            let button = $('<button>').text("배정").addClass("btn btn-primary").addClass("assignBtn");
+                            let tr = $('<tr>').append(
+                                $('<td>').html(patient.patientKey)
+                                , $('<td>').html(patient.patientName)
+                                , $('<td>').html(select)
+                                , $('<td>').html(button)
+                            ).data("patientInfo", patient);
+                            //             <td><select class='hopeGrade'></td>
+                            //             <td><input type='button' class='btn btn-primary' value='배정' /></td>`
+                            waitingPatientList.append(tr);
+                        });
+                    }
+                });
+            }
+            getWaitingPatientList();
+
+
+            // 병동 상태 넣을 tbody selected
+            let wardStatus = $('#wardStatus');
+
+            // 호실 넣을 span 부분 selected
+            let wardStatusSpans = wardStatus.find('span');
+
+            // 비어있는 침상 선택시 발생 메서드 
+            let wardStatusTables = wardStatus.find('table').on('click', '.usableWard', function () {
+                console.log("클릭이벤트 확인~")
+                let selectedBedInfo = $(this).data("wardInfo");
+                if (selectedPatientInfo == null) {
+                    // 환자 선택 없이 선택 경우에는 그냥 return
+                    return;
+                }
+
+                let data = {
+                    patientKey: selectedPatientInfo.patientKey
+                    , wardBedKey: selectedBedInfo.wardBedKey
+                    , waitingKey: selectedPatientInfo.waitingKey
+                }
+
+                // 배정 버튼을 누르고 나서 + 버튼 누르면 배정하는 것이므로 ajax 실행 
+                $.ajax({
+                    url: "${cPath}/reservation/hospitalizationRecord"
+                    , method: "POST"
+                    , data: JSON.stringify(data)
+                    , contentType: "application/json"
+                    , beforeSend: function (xhr) {   /*데이터를 전송하기 전에 헤더에 csrf값을 설정한다*/
+                        xhr.setRequestHeader("${_csrf.headerName}", "${_csrf.token}");
+                    }
+                    , success: () => {
+                        getWardStatus();
+                        getWaitingPatientList();
+                    }
+                    , error: () => {
+                        Swal.fire({
+                            icon: 'error',
+                            title: 'Oops...',
+                            text: 'Something went wrong!',
+                            footer: '<a href="">Why do I have this issue?</a>'
+                        })
+                    }
+                })
+
+                // 선택 정보 초기화
+                selectedPatientInfo = null;
+                console.log("초기화 되는지 체킁", selectedPatientInfo);
+            });
+
+
+
+
+
+
+            // 
+
+            // 병동 상태 불러오기
+            function getWardStatus() {
+                $.ajax({
+                    url: "${cPath}/reservation/wardBedStatus",
+                    method: "get",
+                    dataType: "json",
+                    success: (resp) => {
+                        console.log("원본데이터", resp);
+
+                        let groupedData = resp.reduce((acc, obj) => {
+                            const key = obj.wardKey;
+                            if (!acc[key]) {
+                                acc[key] = [];
+                            }
+                            acc[key].push(obj);
+                            return acc;
+                        }, {});
+
+                        console.log("가공데이터", groupedData);
+
+                        let index = 0;
+                        $.each(groupedData, function (i, ward) {
+                            wardStatusSpans.eq(index).text(`\${i}호 (\${ward[0].wardGrade})`);
+
+                            let theadTr = $('<tr>');
+                            let tbodyTr = $('<tr>');
+                            $.each(ward, function (j, bed) {
+                                let th = $('<th>').html(`\${j+1}번 침상`);
+                                let td = $('<td>');
+                                td.data("wardInfo", bed);
+                                if (bed.patientName == null) {
+                                    td.html("+").addClass("usableWard");
+                                } else {
+                                    td.html(`\${bed.patientName} [ ~\${bed.expectedCheckOutDate} ]`);
+                                }
+                                theadTr.append(th);
+                                tbodyTr.append(td);
+                            });
+                            wardStatusTables.eq(index).find("thead").empty().append(theadTr);
+                            wardStatusTables.eq(index).find("tbody").empty().append(tbodyTr);
+                            index++;
+                        });
+                    }
+                });
+            }
+            getWardStatus();
+
+
+
+
+            // 모달창에서 일정 수정하기
+            const modify = () => {
+                let scheduleId = $("#scheduleKey").val();
+                let bedNum = $("#bedNum").val();
+                let charger = $("#charger").val();
+                let sendData = {}
+                sendData = {
+                    "scheduleKey": scheduleId, "wardBedKey": bedNum, "appintmentCharger": charger
+                }
+                $.ajax({
+                    url: "${cPath}/scheduleUpdate",
+                    type: "post",
+                    data: JSON.stringify(sendData),
+                    contentType: "application/json",
+                    beforeSend: function (xhr) {   /*데이터를 전송하기 전에 헤더에 csrf값을 설정한다*/
+                        xhr.setRequestHeader("${_csrf.headerName}", "${_csrf.token}");
+                    },
+                    success: function (res) {
+                        calendar.refetchEvents();
+                        calendar.render();
+                        detailModal.hide();
+                    },
+                    error: function (request, status, error) {
+                        alert("상태코드:" + request.status + "\n" + "에러내용:" + request.responseText + "\n" + "error:" + error);
+                    }
+                })
+            }
+
+
+
+            // 모달창에서 삭제 눌렀을 때 아직 안만듦
+            const deleteEvent = (id) => {
+                $.ajax({
+                    url: "",
+                    type: "post",
+                    data: {
+                        id: id
+                    },
+                    success: function (res) {
+                        alert("성공 삭제")
+                    },
+                    error: function (request, status, error) {
+                        alert("상태코드:" + request.status + "\n" + "에러내용:" + request.responseText + "\n" + "error:" + error);
+                    }
+                })
+            }
+
+            const createOption = () => {
+                // 오더목록에 이름이 있는 환자 가져오기
+                $.ajax({
+                    url: "",
+                    type: "get",
+                    dataType: "json",
+                    success: function (res) {
+
+                    },
+                    error: function (request, status, error) {
+                        alert("상태코드:" + request.status + "\n" + "에러내용:" + request.responseText + "\n" + "error:" + error);
+                    }
+                })
+            }
+        </script>
+        <!-- 모달 ------------------------------------------------------------------------------------------------------------------------------->
+
+
+        <script>
+            // 그리드스택 기본설정
+            var grid = GridStack.init({});
+
+        </script>

@@ -1,0 +1,34 @@
+package kr.or.ddit.radiology.dao;
+
+import java.util.List;
+
+import org.apache.ibatis.annotations.Mapper;
+
+import kr.or.ddit.vo.RadiologyVO;
+import kr.or.ddit.vo.WaitingHistoryVO;
+
+@Mapper
+public interface RadiologyDAO {
+	
+	/**
+	 * x-ray실, MRI실 대기실 환자 조회
+	 * @return
+	 */
+	public List<WaitingHistoryVO> selectWaitingList();
+	
+	
+	/**
+	 * 오더 키로 찾기
+	 * @param orderKey
+	 * @return
+	 */
+	public RadiologyVO selectRadiology(String orderKey);
+	
+	
+	/**
+	 * xRay 자료 등록
+	 * @param radiology
+	 * @return
+	 */
+	public int insertXrayRadiology(RadiologyVO radiology);
+}

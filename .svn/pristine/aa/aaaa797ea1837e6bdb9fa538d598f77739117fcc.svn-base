@@ -1,0 +1,13 @@
+package kr.or.ddit.product.dao;
+
+import kr.or.ddit.vo.ProductOrderRecordVO;
+import org.apache.ibatis.annotations.Mapper;
+
+import java.util.List;
+
+@Mapper
+public interface ProductOrderRecordDAO {
+	// 주문목록 조회
+    public List<ProductOrderRecordVO> porList();
+    public int insertPor(ProductOrderRecordVO vo);
+}

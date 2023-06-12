@@ -1,0 +1,227 @@
+ package kr.or.ddit.medicalChart.service;
+
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Map;
+
+import javax.inject.Inject;
+
+import org.springframework.stereotype.Service;
+
+import com.fasterxml.jackson.databind.ObjectMapper;
+
+import kr.or.ddit.medicalChart.dao.MedicalChartDAO;
+import kr.or.ddit.radiology.dao.RadiologyDAO;
+import kr.or.ddit.vo.CommonCodeVO;
+import kr.or.ddit.vo.DiagnosisVO;
+import kr.or.ddit.vo.DiseaseVO;
+import kr.or.ddit.vo.MedicalChartVO;
+import kr.or.ddit.vo.MedicalEquipmentVO;
+import kr.or.ddit.vo.OrderHistoryVO;
+import kr.or.ddit.vo.PrescriptionVO;
+import kr.or.ddit.vo.RadiologyVO;
+import kr.or.ddit.vo.SurgeryKindVO;
+import kr.or.ddit.vo.WaitingHistoryVO;
+import lombok.extern.slf4j.Slf4j;
+
+@Slf4j
+@Service
+public class MedicalChartServiceImpl implements MedicalChartService {
+	// dao 객체
+	@Inject
+	private MedicalChartDAO medicalChartDAO;
+	@Inject
+	private RadiologyDAO radiologyDAO;
+	
+	//230503 이혜연------------------------------------------
+	@Override
+	public List<SurgeryKindVO> retrieveSurgeryKindList() {
+		return medicalChartDAO.selectSurgeryKindList();
+	}
+
+	//230504 이혜연------------------------------------------
+	@Override
+	public List<DiseaseVO> retrieveDiseaseAllList() {
+		return medicalChartDAO.selectDiseaseAllList();
+	}
+
+	//230506 이혜연------------------------------------------
+	@Override
+	public List<MedicalChartVO> retrieveMedicalChartList(String patientKey) {
+		// 영상 오더 있는지 체크하기
+		List<MedicalChartVO> preChartList = medicalChartDAO.selectMedicalChartList(patientKey);
+		String radCheck = "";
+		
+		
+		for (MedicalChartVO preChart : preChartList) {
+			List<OrderHistoryVO> orderList =  preChart.getOrderHistoryList();
+			if(orderList!= null || orderList.size() > 0) {
+				for (OrderHistoryVO order : orderList) {
+					if(order!=null) {
+						int radOrderCnt = 0;
+						String preChartradCheck = "";
+						if(order.getOrderKind() != null) {
+							if(order.getOrderKind().equals("O004") || order.getOrderKind().equals("O003")) {
+								radCheck = "촬영오더 있음";
+								radOrderCnt ++; 
+							}else {
+								radCheck = "촬영오더 없음";
+							}
+							order.setRadOrderCheck(radCheck);
+							if(radOrderCnt > 0) {
+								preChartradCheck = "촬영오더 있음";
+							}else {
+								preChartradCheck = "촬영오더 없음";
+							}
+							preChart.setRadOrderCheck(preChartradCheck);
+						}
+					}
+				}
+			}
+		}
+		return preChartList;
+	}
+	
+	//230507 이혜연------------------------------------------
+	@Override
+	public List<MedicalEquipmentVO> retrieveMedicalEquipmentList() {
+		return medicalChartDAO.selectMedicalEquipmentList();
+	}
+
+	@Override
+	public List<CommonCodeVO> retrieveBodyPartList() {
+		return medicalChartDAO.selectBodyPartList();
+	}
+
+	//230510 이혜연------------------------------------------
+	@Override
+	public List<WaitingHistoryVO> retrieveWaitingList(String officeKey) {
+		
+		// 진료 대기환자중 영상촬영 자료기 있는지 확인하기.
+		List<WaitingHistoryVO> waitingList = medicalChartDAO.selectWaitingList(officeKey);
+		for (WaitingHistoryVO waiting : waitingList) {
+			String receiptKey = waiting.getReceiptKey(); 
+			List<RadiologyVO> radList  = radiologyDAO.selectRadData(receiptKey);
+			
+			if(radList !=null || radList.size() >0) {
+				String waitingStatusName ="";
+				for (RadiologyVO rad : radList) {
+//					log.info("받은 데이터 확인 rad : {}", rad);
+					if(rad.getAttGroupNo() !=null) {
+						waitingStatusName = "영상결과대기";
+						waiting.setWaitingStatusName(waitingStatusName);
+					}
+				}
+			}
+			log.info("리턴 데이터 확인 waitingList : {}", waiting);
+		}
+		return waitingList;
+	}
+
+	@Override // 차트번호 생성
+	public String createChartNo() {
+		String newChartNo = medicalChartDAO.createChartNo();
+		log.info("차트번호 확인 = {}", newChartNo);
+		return newChartNo;
+	}
+	
+	public int insertMchartdata(Map<String, Object> inputMap) {// 차트 작성
+		ObjectMapper mapper = new ObjectMapper();
+		DiagnosisVO diagnosis = mapper.convertValue(inputMap.get("diagnosis"), DiagnosisVO.class);
+		
+		// 신규 차트 생성
+		MedicalChartVO mChartVO = mapper.convertValue(inputMap.get("mChartVO"), MedicalChartVO.class);
+		log.info("받은 데이터 확인 mChartVO : {}", mChartVO);
+		mChartVO.setChartCont(mChartVO.getChartCont().replace("\r\n", "<br>"));
+		medicalChartDAO.insertMChart(mChartVO); 
+		log.info("insert 후 데이터 확인 mChartVO : {}", mChartVO);
+		String chartNo = mChartVO.getChartKey();
+		
+		List<Map<String, String>> prescripList = (List<Map<String, String>>) inputMap.get("prescription");
+		List<Map<String, String>> orderlist =  (List<Map<String, String>>) inputMap.get("orderHistory");
+		
+		List<PrescriptionVO> prescriptionList = mapper.convertValue(prescripList,mapper.getTypeFactory().defaultInstance().constructCollectionType(List.class,  PrescriptionVO.class));
+		List<OrderHistoryVO> orderHistoryList = mapper.convertValue(orderlist,mapper.getTypeFactory().defaultInstance().constructCollectionType(List.class,  OrderHistoryVO.class));
+
+		
+		log.info("받은 데이터 확인 diagnosis : {}", diagnosis);
+		log.info("받은 데이터 확인 prescription : {}", prescriptionList);
+		log.info("받은 데이터 확인 orderHistoryList : {}", orderHistoryList);
+		
+		int cnt = 0;
+		// 진단 등록
+		if(diagnosis.getDiseaseKey() != null) {
+			log.info("if문 받은 데이터 확인 diagnosis : {}", diagnosis);
+			diagnosis.setDiseaseKey(diagnosis.getDiseaseKey());
+			diagnosis.setChartKey(chartNo);
+			cnt += medicalChartDAO.insertDiagnosis(diagnosis);
+		}
+		
+		if(prescriptionList.size() > 0 || prescriptionList != null) {
+			// 처방 리스트 넣어주기
+			prescriptionList.forEach((p)->{
+					p.setChartKey(chartNo);
+					int resp = 0;
+					resp += medicalChartDAO.insertPrescription(p);
+					log.info("성공한 처방 리스트 수 resp = {}", resp);
+			});
+		}
+		
+		String location = "";
+		// 오더 리스트 등록하기
+		if(orderHistoryList.size() > 0 || orderHistoryList !=null) {
+			// 해당 차트번호에 의한 영상학과 자료를 조회하고
+			RadiologyVO radiology = radiologyDAO.selectRadiology(chartNo);
+			
+			int countO001 = 0; // 물리치료 오더 확인
+			for (OrderHistoryVO order : orderHistoryList) {
+				// 물리치료와 도수치료 동시에 돈다면...
+				String orderKind = order.getOrderKind();
+				order.setChartKey(chartNo); // 차트번호 넣어주기
+				
+				// 영상 오더가 없다면 오더를 등록하고 장소를 영상촬영실로
+				if(medicalChartDAO.selectCountRadiologyOrder(chartNo) == 0) {
+					location = "L005";
+					medicalChartDAO.insertOrderHistory(order); // 영상 오더가 아니면 오더등록하고 해당오더의 실로..
+				}else if(!order.getOrderKind().equals("O003") ||!order.getOrderKind().equals("O004")  ) { 
+					switch (orderKind) {
+				    case "O001": location = "L004"; break; // 물리치료
+				    case "O002": location = "L006"; break; // 도수치료
+				    default:  location = "L008";  break; // 수술... => 진료완료 수납
+				    }
+					medicalChartDAO.insertOrderHistory(order); 
+				}
+				if(orderKind.equals("O001")) countO001 ++; // 물리치료 오더수 증가
+				
+				if(orderKind.startsWith("S")) { // 오더 내역이 수술로 시작하면 입원예약에 insert
+					int res = medicalChartDAO.insertWaitingHospitalzation(chartNo);
+					location = "L008"; 
+					log.info("입원 예약 확인 = {}", res);
+				}
+			}
+			if(countO001 > 0) location = "L004"; //다른오더와 물리치료 둘다 있을경우 물리치료실로 우선 이동
+			
+		
+		}else { location = "L008";  } // 오더가 없으면 수납실로 이동
+		
+		updateWaitingHistory(chartNo, location); // 차트번호, 대기장소변경
+		
+		return cnt;
+	}
+	
+	// 대기상태 히스토리 변경
+	public int updateWaitingHistory(String chartNo,  String location ) {
+		String receiptKey =  medicalChartDAO.selectReceipKey(chartNo); // 접수번호 찾기
+		WaitingHistoryVO waiting = new WaitingHistoryVO();
+		waiting.setReceiptKey(receiptKey); // 접수키/장소
+		int cnt = 0;
+		waiting.setWaitingLocation(location); // 장소변경
+		cnt += medicalChartDAO.updateWaitingStatus(waiting);
+		
+		log.info(" 대기상태 변경 성공 : {}", cnt);
+		log.info(" 대기상태 변경 장소 : {}", location);
+		
+		return cnt;
+	}
+	
+}

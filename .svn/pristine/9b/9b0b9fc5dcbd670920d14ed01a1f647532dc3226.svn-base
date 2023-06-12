@@ -1,0 +1,180 @@
+<%@ page language="java" contentType="text/html; charset=UTF-8"
+    pageEncoding="UTF-8"%>
+<%@ taglib uri="http://java.sun.com/jsp/jstl/core" prefix="c"%>
+<style>
+	.grid-stack{
+		height: 100hv;
+	}
+/* 	.grid-stack-item{ */
+/* 		border-radius: 1rem;  */
+/* 	} */
+	.card{
+		margin: 0;
+		--vz-card-inner-border-radius : 1rem;
+		background-color : white;
+	}
+	.card-header{
+		border-radius: 30px;
+		background-color : #405189;
+		color : white;
+	}
+	.rtBtn{
+		float: right;
+	}
+	.nav-tabs .nav-link.active{
+		background-color: #405189;
+		color: white;
+	}
+	.ptTableForm{
+		text-align: center;
+	}
+
+</style>
+
+<!-- <h1>물리/도수치료 페이지입니다.</h1> -->
+<div class="grid-stack"> 
+
+	<div class="grid-stack-item card" gs-x="0" gs-y="0" gs-w="3" gs-h="3">
+		<div class="card-header">물리치료 대기환자 조회</div> 
+		<div class="card-body">
+			 <div class="grid-stack-item-content">
+				<h4>-물리치료실</h4>
+				<table class="table table-bordered ptTableForm">
+					<thead class='table table-info table-striped'>
+						<tr>
+							<th style="width: 10%">환자코드</th>
+							<th style="width: 25%">환자명[성별/나이]</th>
+							<th style="width: 15%">현재상태</th>
+							<th style="width: 20%">호출하기</th>
+						</tr>
+					</thead>
+					<tbody>
+						
+						<tr>
+							<td>P00027</td>
+							<td>최유림 [W/20]</td>
+							<td>대기중</td>
+							<td><input type="button" class="btn btn-primary callBtn" value="호출"></td>
+						</tr>
+						<tr>
+							<td>2</td>
+							<td>안정민</td>
+							<td>대기중</td>
+							<td><input type="button" class="btn btn-primary callBtn" value="호출"></td>
+						</tr>
+					</tbody>
+				</table>
+			</div>
+		</div>
+	</div>
+	
+	<div class="grid-stack-item card" gs-x="0" gs-y="5" gs-w="3" gs-h="2">
+		<div class="card-header">환자 진료 차트</div> 
+	</div>
+	
+	
+	<div class="grid-stack-item card" gs-x="3" gs-y="0" gs-w="6" gs-h="3">
+		<div class="card-header">치료실 침상 현황 조회</div> 
+		<div class="card-body">
+			<div class="grid-stack-item-content">
+				<h4>-현재 침상 상태</h4>
+				
+			</div>
+		</div>
+	</div>
+	
+	
+	<div class="grid-stack-item card" gs-x="3" gs-y="5" gs-w="6" gs-h="2">
+		<div class="card-header">물리치료 액팅</div>
+		<div class="card-body">
+			<div class="grid-stack-item-content">
+				<table class="table table-bordered ptTableForm">
+					<tr>
+						<th class="table-info">환자명</th>
+						<td>김환자</td>
+						<th class="table-info">나이/성별</th>
+						<td>20/W</td>
+					</tr>
+					<tr>
+						<th class="table-info">진단명</th>
+						<td>rt.shoulder rotator cuff injury</td>
+						<th class="table-info">주치의</th>
+						<td>박의사</td>
+					</tr>
+					<tr>
+						<td colspan=4">
+							<div class="form-floating">
+								 <textarea class="form-control" placeholder="Leave a comment here" id="floatingTextarea2" style="height: 100px"></textarea>
+								 <label for="floatingTextarea2">Comments</label>
+							</div>
+						</td>
+					</tr>
+					<tr>
+						<td colspan="4"><input type="button" class="btn btn-primary callBtn" value="액팅하기"></td>
+					</tr>
+				</table>
+			</div>
+		</div>
+	</div>
+	
+	<div class="grid-stack-item card" gs-x="9" gs-y="0" gs-w="3" gs-h="3">
+		<div class="card-header">물리치료 기구조회</div>
+		<div class="card-body">
+			<div class="grid-stack-item-content">
+				<table class="table table-bordered ptTableForm">
+					<tr class="table table-info table-striped">
+						<th>기구명</th>
+						<th>현재상태</th>
+					</tr>
+					<tr>
+						<td>Shoulder-CPM</td>
+						<td>[사용가능]</td>
+					</tr>
+					<tr>
+						<td>ICT</td>
+						<td>[사용중]</td>
+					</tr>
+					<tr>
+						<td>TENS</td>
+						<td>[사용가능]</td>
+					</tr>
+				</table>
+			</div>
+		</div>
+	</div>
+	
+	<div class="grid-stack-item card" gs-x="9" gs-y="5" gs-w="3" gs-h="2">
+		<div class="card-header">치료기구 상태관리</div>
+		<div class="card-body">
+			<div class="grid-stack-item-content">
+				<table class="table table-bordered ptTableForm">
+					<tr class="table table-info table-striped">
+						<th>기구명</th>
+						<th>모델명</th>
+					</tr>
+					<tr>
+						<td>Shoulder-CPM</td>
+						<td>RCF-1251</td>
+					</tr>
+				</table>
+			</div>
+		</div>
+	</div>
+	
+	
+</div>
+
+
+<script>
+
+
+//GridStack ----------------------------------------------------------------------
+var grid = GridStack.init({});
+$("tbody:not(.disable)").on("click", ".datatr", function(event){
+	$(this).siblings(".datatr").removeClass("active");
+	$(this).toggleClass("active");
+});
+//------------------------------------------------------------------------------------ 
+
+
+</script>

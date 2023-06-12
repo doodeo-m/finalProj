@@ -1,0 +1,28 @@
+package kr.or.ddit.vo;
+
+import lombok.Data;
+import lombok.EqualsAndHashCode;
+import lombok.ToString;
+import lombok.extern.slf4j.Slf4j;
+
+@Data
+@ToString
+@EqualsAndHashCode(of = "patientKey")
+public class PatientVO {
+	private String patientKey;
+	private String patientName;
+	private Integer patientAge;
+	private String patientSex;
+	private Integer patientRegno1;
+	private Integer patientRegno2;
+	private String patientPn;
+	private String patientAddress;
+	private String patientAddressDetail;
+	private String patientType;
+	private String patientSignificant;
+	
+	private PreDiagnosisVO preDiagnosis; // 1:1 has a 관계
+	
+	private GuardianVO guardian; // 1:1 has a 관계
+	
+}

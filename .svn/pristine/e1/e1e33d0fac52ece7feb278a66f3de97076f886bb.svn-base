@@ -1,0 +1,614 @@
+<%@ page language="java" contentType="text/html; charset=UTF-8"
+	pageEncoding="UTF-8"%>
+<%@ taglib uri="http://java.sun.com/jsp/jstl/core" prefix="c"%>
+<%@ taglib uri="http://www.springframework.org/tags/form" prefix="form"%>
+<%@ taglib uri="http://www.springframework.org/security/tags"
+	prefix="security"%>
+<script src="${cPath }/resources/js/ckeditor/ckeditor.js"></script>
+
+<style type="text/css">
+.datatr:hover {
+	background-color: #c1d3ba;
+}
+
+.datatr.active {
+	background-color: #9aede3;
+}
+
+.grid1 {
+	border-bottom: 2px solid black;
+}
+
+.grid1, .grid2 {
+	padding: 10px;
+	margin: 0px;
+}
+
+.grid-stack {
+	height: 100hv;
+}
+
+#searchHead {
+	text-align: center;
+	font-size: 5em;
+}
+
+#empH4 {
+	text-align: center;
+	font-weight: bold;
+}
+
+#empBoardBtn {
+	float: right;
+	margin: 10px;
+}
+
+#empBoardSubmitBtn {
+	margin: 10px;
+	float: right;
+}
+
+#empBoardTB {
+	text-align: center;
+}
+
+.page-item {
+	text-align: center;
+}
+
+.searchInput {
+	width: 30%;
+	border: 1px solid #bbb;
+	border-radius: 8px;
+	padding: 10px 12px;
+	font-size: 14px;
+	margin-left: 600px;
+}
+
+.jobSelect {
+	width: 150px;
+	height: 35px;
+	background-size: 20px;
+	padding: 5px 30px 5px 10px;
+	border-radius: 4px;
+	outline: 0 none;
+}
+</style>
+
+<!-- 상세보기 모달 -->
+<div class="modal fade" id="exampleModalgrid" tabindex="-1"
+	aria-labelledby="exampleModalgridLabel" aria-modal="true">
+	<div class="modal-dialog">
+		<div class="modal-content">
+			<div class="modal-header">
+				<h5 class="modal-title" id="exampleModalgridLabel">개인정보 수정하기</h5>
+				<button type="button" class="btn-close" data-bs-dismiss="modal"
+					aria-label="Close"></button>
+			</div>
+			<div class="modal-body">
+				<form id="empUpdateForm">
+					<div class="row g-3">
+						<div class="col-xl-5">
+							<div>
+								<label for="empKeyLabel" class="form-label">사원코드</label> <input
+									type="text" class="form-control" name="empKey" id="formEmpKey"
+									readonly />
+							</div>
+						</div>
+						<!--end col-->
+						<div class="col-xxl-6">
+							<div>
+								<label for="patientName" class="form-label">사원명</label> <input
+									type="text" class="form-control" name="empName"
+									id="formEmpName" placeholder="사원명" />
+							</div>
+						</div>
+						<!--end col-->
+						<div class="col-xxl-6">
+							<div>
+								<label for="patientAge" class="form-label">나이</label> <input
+									type="text" class="form-control" name="empAge" id="formEmpAge"
+									placeholder="나이" />
+							</div>
+						</div>
+						<!--end col-->
+						<!--end col-->
+
+						<div class="col-xxl-6">
+							<div>
+								<label for="patientRegno1" class="form-label">주민등록번호</label> <input
+									type="text" class="form-control" id="formRegno1"
+									placeholder="주민등록번호" disabled />
+							</div>
+						</div>
+						<!--end col-->
+
+						<div class="col-xxl-6">
+							<div>
+								<label for="patientPn" class="form-label">연락처</label> <input
+									type="text" class="form-control" name="empPhone"
+									id="formEmpPhone" placeholder="연락처" />
+							</div>
+						</div>
+						<!--end col-->
+
+						<div></div>
+
+						<div class="col-xxl-6">
+							<div>
+								<label for="patientType" class="form-label">주소</label> <input
+									type="text" class="form-control" name="empAddr"
+									id="formEmpAddr" placeholder="주소" />
+							</div>
+						</div>
+						<!--end col-->
+						<div class="col-xxl-6">
+							<div>
+								<label for="patientSignificant" class="form-label">상세주소</label>
+								<input type="text" class="form-control" name="empAddrDetail"
+									id="formEmpAddrDetail" placeholder="저장된 데이터가 없습니다" />
+							</div>
+						</div>
+						<!--end col-->
+
+						<div class="col-lg-12">
+							<div class="hstack gap-2 justify-content-end">
+								<button type="button" class="btn btn-light"
+									data-bs-dismiss="modal">등록취소</button>
+								<button type="submit" class="btn btn-primary"
+									data-bs-dismiss="modal" onclick="modifyProfile()">저장</button>
+							</div>
+						</div>
+						<!--end col-->
+					</div>
+					<!--end row-->
+				</form>
+			</div>
+		</div>
+	</div>
+</div>
+
+<!-- 직원 추가하기 모달 -->
+<div class="modal fade" id="addEmpModal" tabindex="-1"
+	aria-labelledby="exampleModalgridLabel" aria-modal="true">
+	<div class="modal-dialog">
+		<div class="modal-content">
+			<div class="modal-header">
+				<h5 class="modal-title" id="exampleModalgridLabel">직원 추가</h5>
+				<button type="button" class="btn-close" data-bs-dismiss="modal"
+					aria-label="Close"></button>
+			</div>
+			<div class="modal-body">
+				<form id="empAddForm">
+					<div class="row g-3">
+						<div class="col-xl-12">
+							<div>
+								<label for="empKeyLabel" class="form-label" >사원ID</label>
+								<!-- 나중에 중복검사하기 -->
+								<input type="text" class="form-control" name="addempId" id="" value="inserttest"/>
+							</div>
+						</div>
+						<div class="col-xl-12">
+							<div>
+								<label for="empKeyLabel" class="form-label">비밀번호</label>
+								<!-- 나중에 input	타입 pass로 바꾸기 -->
+								<input type="text" class="form-control" name="addempPass" id="" value="java"/>
+							</div>
+						</div>
+						<div class="col-xl-12">
+							<div>
+								<label for="empKeyLabel" class="form-label">사원이름</label> <input
+									type="text" class="form-control" name="addempName" id="" value="인서트테스트"/>
+							</div>
+						</div>
+						<div class="col-xl-12">
+							<div>
+								<label for="empKeyLabel" class="form-label">나이</label> <input
+									type="text" class="form-control" name="addempAge" id="" value="29"/>
+							</div>
+						</div>
+						<div class="col-xl-12">
+							<div>
+								<label for="empKeyLabel" class="form-label">직업구분</label> <br>
+								<select name="addempJob" class="jobSelect" id="">
+									<option value="">선택하기</option>
+									<option value="J001">원무과</option>
+									<option value="J002">의사</option>
+									<option value="J003">간호사</option>
+									<option value="J004">물리치료사</option>
+									<option value="J005">도수치료사</option>
+									<option value="J006">영상촬영</option>
+								</select>
+							</div>
+						</div>
+						<div class="col-xl-12">
+							<div>
+								<label for="empKeyLabel" class="form-label">주민번호 앞자리</label> <input
+									type="text" class="form-control" name="addempRegno1" id="" value="950314"/>
+							</div>
+						</div>
+						<div class="col-xl-12">
+							<div>
+								<label for="empKeyLabel" class="form-label">주민번호 뒷자리</label>
+								<!-- 나중에 input	타입 pass로 바꾸기 -->
+								<input type="text" class="form-control" name="addempRegno2"
+									id="" value="1222222"/>
+							</div>
+						</div>
+						<div class="col-xl-12">
+							<div>
+								<label for="empKeyLabel" class="form-label">전화번호</label> <input
+									type="text" class="form-control" name="addempPhone" id="" value="01012345678"/>
+							</div>
+						</div>
+						<div class="col-xl-12">
+							<div>
+								<label for="empKeyLabel" class="form-label">주소</label> <input
+									type="text" class="form-control" name="addempAddr" id="" value="대전"/>
+							</div>
+						</div>
+						<div class="col-xl-12">
+							<div>
+								<label for="empKeyLabel" class="form-label">상세주소</label> <input
+									type="text" class="form-control" name="addempAddrDetail" id="" value="서구"/>
+							</div>
+						</div>
+
+						<div class="col-xl-12">
+							<div>
+								<label for="empKeyLabel" class="form-label">퇴사일</label> <input
+									type="text" class="form-control" name="addempRetireDate" id="" />
+							</div>
+						</div>
+						<div class="col-xl-12">
+							<div>
+								<label for="empKeyLabel" class="form-label">퇴사여부</label> <br>
+								<input type="radio" name="addempRetireCheck" value="N" /> 퇴사 <input
+									type="radio" name="addempRetireCheck" value="Y"
+									checked="checked" /> 재직중
+
+
+							</div>
+						</div>
+						<div class="col-xl-12">
+							<div>
+								<label for="empKeyLabel" class="form-label">파일그룹번호</label> <input
+									type="text" class="form-control" name="addempFileGroupNo" id="" />
+							</div>
+						</div>
+						<div class="col-xl-12">
+							<div>
+								<label for="empKeyLabel" class="form-label">면허번호</label> <input
+									type="text" class="form-control" name="addempLicenseNo" id="" />
+							</div>
+						</div>
+
+						<div class="col-lg-12">
+							<div class="hstack gap-2 justify-content-end">
+								<button type="button" class="btn btn-light"
+									data-bs-dismiss="modal" onclick="">등록취소</button>
+								<!-- 등록취소하면 작성중인 내용 지우기 -->
+								<button type="submit" class="btn btn-primary"
+									data-bs-dismiss="modal">저장</button>
+							</div>
+						</div>
+					</div>
+					<!--end row-->
+				</form>
+			</div>
+		</div>
+	</div>
+</div>
+
+<div class="grid-stack">
+	<div class="grid-stack grid1" gs-x="0" gs-y="0" gs-w="12" gs-h="3">
+		<div class="grid-stack-item-content tb">
+			<div id="">
+				<div id="searchHead">
+					<!-- 					<h3 id="searchHead">D-Bone 정형외과 검색</h3> -->
+					<img alt="" src="${cPath }/resources/ajm/images/ddd.png"
+						style="height: 150px; width: 372px; margin-bottom: -20px; margin-left: 40px;" />
+				</div>
+				<input style="margin-bottom: 20px" class="searchInput" type="text"
+					id="inputId" placeholder="검색할 내용을 입력해주세요." />
+				<button data-bs-toggle='modal' data-bs-target='#addEmpModal'
+					class="btn btn-primary">직원 추가하기</button>
+			</div>
+		</div>
+	</div>
+	<div class="grid-stack grid2" gs-x="0" gs-y="4" gs-w="12" gs-h="3">
+		<div class="grid-stack-item-content tb">
+			<div>
+				<div id="empBoardHeader">
+					<h3 id="empH4">인사관리</h3>
+				</div>
+				<table id="empBoardTB" class="table table-bordered">
+					<thead class="table table-info table-striped">
+						<tr>
+							<th>사원번호</th>
+							<th>사원ID</th>
+							<th>사원명</th>
+							<th>나이</th>
+							<th>직업구분</th>
+							<th>주민번호</th>
+							<th>전화번호</th>
+							<th>주소</th>
+							<th>상세주소</th>
+							<th>입사일</th>
+							<th>은퇴일</th>
+							<th>자격증번호</th>
+						</tr>
+					</thead>
+					<tbody id="listBody">
+						<!-- 공지사항 리스트 들어오는 위치 -->
+					</tbody>
+					<tfoot>
+						<tr id="tfootId">
+							<td colspan="12">
+								<nav aria-label="...">
+									<ul id="pagingArea" style="display: inline-flex"
+										class="pagination pagination-sm"></ul>
+								</nav>
+							</td>
+						</tr>
+					</tfoot>
+				</table>
+			</div>
+		</div>
+	</div>
+
+	<form name="empSearchForm" method="post">
+		<security:csrfInput />
+		<input type="hidden" name="page" />
+	</form>
+
+	<script>
+    // GridStack ----------------------------------------------------------------------
+    var grid = GridStack.init({});
+    $("tbody:not(.disable)").on("click", ".datatr", function (event) {
+      $(this).siblings(".datatr").removeClass("active");
+      $(this).toggleClass("active");
+    });
+    //------------------------------------------------------------------------------------
+
+    // 회원 리스트 조회용 --------------------------------------------------------------------
+    const empList = () => {
+      const listBody = $("#listBody");
+      const pagingArea = $("#pagingArea");
+
+      let fn_makeTr = function (emp) {
+        let trs = $(
+          "<tr data-bs-toggle='modal' data-bs-target='#exampleModalgrid'>"
+        )
+          .on("click", function () {
+            trClick(emp);
+          })
+          .addClass("empTrtags")
+          .append(
+            $("<td>").addClass("dataValue1").html(emp.empKey),
+            $("<td>").addClass("dataValue2").html(emp.empId),
+            $("<td>").addClass("dataValue3").html(emp.empName),
+            $("<td>").addClass("dataValue4").html(emp.empAge),
+            $("<td>").addClass("dataValue5").html(emp.empJob),
+            $("<td>").addClass("dataValue6").html(emp.empRegno1),
+            $("<td>").addClass("dataValue7").html(emp.empPhone),
+            $("<td>").addClass("dataValue8").html(emp.empAddr),
+            $("<td>").addClass("dataValue9").html(emp.empAddrDetail),
+            $("<td>").addClass("dataValue10").html(emp.empHireDate),
+            $("<td>").addClass("dataValue11").html(emp.empRetireDate),
+            $("<td>").addClass("dataValue12").html(emp.empLicenseNo)
+          );
+
+        return trs;
+      };
+
+      // 모달띄우는 tr태그 클릭했을 때 input창 채워주기
+      const trClick = (emp) => {
+        console.log("그냥this", this);
+        console.log("제이쿼리this", $(this));
+        console.log("Emp키", emp.empKey);
+        console.log("체킁");
+      };
+
+      // 검색하기--------------------------------------------------
+      const inputId = $("#inputId");
+      const tfootId = $("#tfootId");
+      inputId.on("keyup", function () {
+        if (inputId.val().length > 0) {
+          tfootId.hide();
+        }
+        let inputValue = inputId.val().toUpperCase();
+        let empTrtags = $(".empTrtags");
+
+        $.each(empTrtags, function (i, v) {
+          let dataValue1 = $(this).find(".dataValue1").html();
+          let dataValue2 = $(this).find(".dataValue2").html();
+          let dataValue3 = $(this).find(".dataValue3").html();
+          let dataValue4 = $(this).find(".dataValue4").html();
+          let dataValue5 = $(this).find(".dataValue5").html();
+          let dataValue6 = $(this).find(".dataValue6").html();
+          let dataValue7 = $(this).find(".dataValue7").html();
+          let dataValue8 = $(this).find(".dataValue8").html();
+          let dataValue9 = $(this).find(".dataValue9").html();
+          let dataValue10 = $(this).find(".dataValue10").html();
+          let dataValue11 = $(this).find(".dataValue11").html();
+          let dataValue12 = $(this).find(".dataValue12").html();
+          if (dataValue1.toUpperCase().indexOf(inputValue) > -1) {
+            $(this).show();
+            return;
+          } else {
+            $(this).hide();
+          }
+          if (dataValue2.toUpperCase().indexOf(inputValue) > -1) {
+            $(this).show();
+            return;
+          } else {
+            $(this).hide();
+          }
+          if (dataValue3.toUpperCase().indexOf(inputValue) > -1) {
+            $(this).show();
+            return;
+          } else {
+            $(this).hide();
+          }
+          if (dataValue4.toUpperCase().indexOf(inputValue) > -1) {
+            $(this).show();
+            return;
+          } else {
+            $(this).hide();
+          }
+          if (dataValue5.toUpperCase().indexOf(inputValue) > -1) {
+            $(this).show();
+            return;
+          } else {
+            $(this).hide();
+          }
+          if (dataValue6.toUpperCase().indexOf(inputValue) > -1) {
+            $(this).show();
+            return;
+          } else {
+            $(this).hide();
+          }
+          if (dataValue7.toUpperCase().indexOf(inputValue) > -1) {
+            $(this).show();
+            return;
+          } else {
+            $(this).hide();
+          }
+          if (dataValue8.toUpperCase().indexOf(inputValue) > -1) {
+            $(this).show();
+            return;
+          } else {
+            $(this).hide();
+          }
+          if (dataValue9.toUpperCase().indexOf(inputValue) > -1) {
+            $(this).show();
+            return;
+          } else {
+            $(this).hide();
+          }
+          if (dataValue10.toUpperCase().indexOf(inputValue) > -1) {
+            $(this).show();
+            return;
+          } else {
+            $(this).hide();
+          }
+          if (dataValue11.toUpperCase().indexOf(inputValue) > -1) {
+            $(this).show();
+            return;
+          } else {
+            $(this).hide();
+          }
+          if (dataValue12.toUpperCase().indexOf(inputValue) > -1) {
+            $(this).show();
+          } else {
+            $(this).hide();
+          }
+        });
+        if (inputId.val() == 0) {
+          tfootId.show();
+        }
+      });
+      // --------------------------------------------------------------
+
+      let empSearchForm = $("[name=empSearchForm]")
+        .on("submit", function (event) {
+          event.preventDefault();
+
+          let data = $(this).serialize();
+          $.ajax({
+            url: "/FinalPJ/empList",
+            data: data,
+            dataType: "json",
+            method: "post",
+          })
+            .done(function (resp, textStatus, jqXHR) {
+              listBody.empty();
+              pagingArea.empty();
+
+              let trTags = [];
+              if (resp.dataList.length > 0) {
+                $.each(resp.dataList, function (idx, emp) {
+                  trTags.push(fn_makeTr(emp));
+                });
+                pagingArea.html(resp.pagingHTML);
+              } else {
+                trTags.push(
+                  $("<tr>").html(
+                    $("<td colspan='12'>").html("게시글이 없습니다.")
+                  )
+                );
+                pagingArea.html(resp.pagingHTML);
+              }
+              listBody.append(trTags);
+            })
+            .fail(function (jqXHR, status, error) {
+              console.log(`상태코드 : ${status}, 에러메시지 : ${error}`);
+            });
+
+          return false;
+        })
+        .submit();
+
+      // fn_paging 함수를 전역으로 선언
+      window.fn_paging = function (page, event) {
+        empSearchForm.find("[name=page]").val(page);
+        empSearchForm.submit();
+        empSearchForm.find("[name=page]").val("");
+        return false;
+      };
+    };
+
+    empList();
+
+    //------------------------------------------------------------------------------------
+    
+    
+    
+    // 회원 추가하기
+    const empAddForm = $("#empAddForm");
+    empAddForm.on("submit", function (event) {
+    	event.preventDefault();
+    	console.log("넘어가지마!")
+    	// 입력된 값 선택해서 아작스로 보내기
+        let empVO = {
+    		empId: $("input[name=addempId]").val(),
+    		empPass: $("input[name=addempPass]").val(),
+    		empName: $("input[name=addempName]").val(),
+    		empAge: $("input[name=addempAge]").val(),
+    		//empJob: $("input[name=addempJob]").val(),/////////////////////////수정 input태그아님
+    		empJob: $(this).find('option:selected').val(),
+    		empRegno1: $("input[name=addempRegno1]").val(),
+    		empRegno2: $("input[name=addempRegno2]").val(),
+    		empPhone: $("input[name=addempPhone]").val(),
+    		empAddr: $("input[name=addempAddr]").val(),
+    		empAddrDetail: $("input[name=addempAddrDetail]").val(),
+    		empRetireDate: $("input[name=addempRetireDate]").val(),
+    		empRetireCheck: $("input[name=addempRetireCheck]").val(),///////////////수정 input태그아님
+    		empFileGroupNo: $("input[name=addempFileGroupNo]").val(),
+    		empLicenseNo: $("input[name=addempLicenseNo]").val(),
+        };
+    	console.log("저장된 값 : ",empVO);
+
+
+        $.ajax({
+            type: "post",
+            url: "${cPath}/addEmp",
+            contentType: 'application/json; charset=UTF-8',
+            data: JSON.stringify(empVO),
+            dataType: "text",
+            beforeSend: function (xhr) {   /*데이터를 전송하기 전에 헤더에 csrf값을 설정한다*/
+                xhr.setRequestHeader("${_csrf.headerName}", "${_csrf.token}");
+            },
+            success: function (rslt) {
+                console.log("인서트 아작스", rslt);
+                empList();
+            }
+        })
+        
+        
+    })
+
+    //------------------------------------------------------------------------------------
+  </script>
+</div>

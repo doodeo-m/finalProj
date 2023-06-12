@@ -1,0 +1,145 @@
+package kr.or.ddit.therapy.controller;
+
+import java.util.List;
+
+import javax.inject.Inject;
+
+import org.apache.ibatis.annotations.Param;
+import org.springframework.stereotype.Controller;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.ResponseBody;
+
+import kr.or.ddit.therapy.service.TherapyService;
+import kr.or.ddit.vo.EquipmentStatusRecordVO;
+import kr.or.ddit.vo.MedicalChartVO;
+import kr.or.ddit.vo.MedicalEquipmentVO;
+import kr.or.ddit.vo.PtRecordVO;
+import kr.or.ddit.vo.PtRoomVO;
+import kr.or.ddit.vo.ReceiptionVO;
+import lombok.extern.slf4j.Slf4j;
+
+@Slf4j
+@Controller
+@RequestMapping
+public class TherapyController {
+
+	@Inject
+	private TherapyService therapyService;
+	
+	@GetMapping(value = "/ptWaitingPatientList.do", produces = "application/json;charset=UTF-8")
+	@ResponseBody
+	public List<ReceiptionVO> ptWaitingPatientList(){
+		List<ReceiptionVO> list =  therapyService.ptWaitingPatientList();
+		return list;
+	}
+	@GetMapping(value = "/ptEquipmentList.do", produces = "application/json;charset=UTF-8")
+	@ResponseBody
+	public List<MedicalEquipmentVO> ptEquipmentList(){
+		List<MedicalEquipmentVO> list = therapyService.ptEquipmentList();
+		return list;
+	}
+	
+	@GetMapping(value = "/ptEquipmentDetail.do", produces = "application/json;charset=UTF-8")
+	@ResponseBody
+	public MedicalEquipmentVO ptEquipmentDetail(@RequestParam("what") int equipmentKey) {
+		MedicalEquipmentVO equipmentVO = therapyService.ptEquipmentDetail(equipmentKey);
+		return equipmentVO;
+	}
+	
+	@GetMapping(value = "/ptEquipmentStatusList.do", produces = "application/json;charset=UTF-8")
+	@ResponseBody
+	public List<EquipmentStatusRecordVO> ptEquipmentStatusList(@RequestParam("eqKey")int equipmentKey){
+		List<EquipmentStatusRecordVO> list = therapyService.ptEquipmentStatusList(equipmentKey);
+		return list;
+	}
+	
+	
+	@PostMapping(value = "/ptEquipmentStatusInsert.do", produces = "application/json;charset=UTF-8")
+	@ResponseBody
+	public String ptEquipmentStatusInsert(@RequestBody EquipmentStatusRecordVO eqStatusRecVO) {
+		therapyService.ptEquipmentStatusInsert(eqStatusRecVO);
+		
+		log.debug("insert 확인 : {} ", eqStatusRecVO);
+		
+		return "success";
+	}
+	
+	@GetMapping(value = "/ptEquipmentSelectList.do", produces = "application/json;charset=UTF-8")
+	@ResponseBody
+	public List<MedicalChartVO> ptEquipmentSelectList(@RequestParam("who") String patientKey){
+		List<MedicalChartVO> list = therapyService.ptEquipmentSelectList(patientKey);
+		return list;
+	}
+	
+	@GetMapping(value = "/ptRoomStatusSelect.do", produces = "application/json;charset=UTF-8" )
+	@ResponseBody
+	public List<PtRoomVO> ptRoomStatusSelect(){
+		return therapyService.ptRoomStatusSelect();
+	}
+	
+	
+	@PostMapping(value = "/ptRoomStatusUpdate.do", produces = "application/json;charset=UTF-8")
+	@ResponseBody
+	public String ptRoomStatusUpdate(@RequestBody PtRoomVO ptRoomVO) {
+		therapyService.ptRoomStatusUpdate(ptRoomVO);
+		return "침상 업데이트 success";
+	}
+	
+	@PostMapping(value = "/ptEuipmentStatusUpdate.do", produces = "application/json;charset=UTF-8")
+	@ResponseBody
+	public String ptEuipmentStatusUpdate(@RequestBody int ptEquipmentKey) {
+		therapyService.ptEuipmentStatusUpdate(ptEquipmentKey);
+		
+		log.debug("ptEquipmentCode 왔니 : {}", ptEquipmentKey);
+		return "장비 업데이트 success";
+	}
+	
+	@PostMapping(value = "/ptRecordInsert.do", produces = "application/json;charset=UTF-8")
+	@ResponseBody
+	public String ptRecordInsert(@RequestBody PtRecordVO ptRecordVO) {
+		therapyService.ptRecordInsert(ptRecordVO);
+		return "물리치료기록 인서트 success";
+	}
+	
+	@GetMapping(value = "/ptRoomSelectList.do", produces = "application/json;charset=UTF-8")
+	@ResponseBody
+	public List<PtRoomVO> ptRoomSelectList(){
+		return therapyService.ptRoomSelectList();
+	} 
+	
+	@GetMapping(value = "/nowPtBedStatusList.do", produces = "application/json;charset=UTF-8" )
+	@ResponseBody
+	public List<PtRecordVO> nowPtBedStatusList(){
+		return therapyService.nowPtBedStatusList();
+	}
+	
+	
+	@GetMapping(value = "/actingDetail.do", produces = "application/json;charset=UTF-8")
+	@ResponseBody
+	public PtRecordVO actingDetail(@RequestParam("bedKey")int ptBedKey) {
+		return therapyService.actingDetail(ptBedKey);
+	}
+	
+	
+	@PostMapping(value = "/actingCommentUpdate.do", produces = "application/json;charset=UTF-8")
+	@ResponseBody
+	public String actingCommentUpdate(@RequestBody PtRecordVO ptRecordVO) {
+		therapyService.actingCommentUpdate(ptRecordVO);
+		log.debug("comment 업데이트 {}", ptRecordVO);
+		return "comment 업데이트 완료";
+	}
+	
+	
+	@GetMapping(value = "/patientChartDetail.do", produces = "application/json;charset=UTF-8")
+	@ResponseBody
+	public ReceiptionVO patientChartDetail(@RequestParam("patientKey")String patientKey, @RequestParam("waitingKey")Integer waitingKey) {
+		log.debug("chPatientKey 왔니? {}", patientKey);
+		log.debug("chWaitingKey 왔니? {}", waitingKey);
+		return therapyService.patientChartDetail(patientKey, waitingKey);
+	}
+	
+}

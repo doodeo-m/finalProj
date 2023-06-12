@@ -1,0 +1,505 @@
+<%@ page language="java" contentType="text/html; charset=UTF-8"
+    pageEncoding="UTF-8"%>
+<%@ taglib uri="http://java.sun.com/jsp/jstl/core" prefix="c"%>
+<%@ taglib uri="http://www.springframework.org/tags/form" prefix="form" %>
+<%@ taglib uri="http://www.springframework.org/security/tags" prefix="security" %>
+<script src="${cPath }/resources/js/ckeditor/ckeditor.js"></script>
+
+<style type="text/css">
+	.datatr:hover {
+		background-color: #C1D3BA;
+	}
+	.datatr.active {
+		background-color: #9AEDE3;
+	} 
+	.grid1, .grid2{
+		padding : 10px;
+		margin : 0px;
+		border : 1px solid black;
+ 		background-color: white;
+		border-radius: 30px;
+	}
+	.grid-stack{
+		height: 100hv;
+	}
+	#noticeH4{
+		text-align: center;
+		font-weight: bold;
+	}
+	
+	#noticeBoardBtn{
+		float: right;
+		margin: 10px;
+	}
+	#noticeBoardSubmitBtn{
+		margin: 10px;
+		float: right;
+	}
+	#noticeBoardTB{
+		text-align: center;
+
+	}
+	.page-item{
+		text-align: center;
+	}
+</style>
+
+<div class="grid-stack"> 
+		<!-- 공지사항 게시판 위치 -->
+		<div class="grid-stack-item grid1" gs-x="0" gs-y="4" gs-w="8" gs-h="5">
+			<div class="grid-stack-item-content tb" id= "noticeBoardDivGrid">
+				<div id="noticeBoardDiv">
+					<div id="noticeBoardHeader">
+						<h3 id="noticeH4">공지사항</h3>
+						<button type="button" id="noticeBoardBtn" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#exampleModalgrid">
+						    게시글 작성
+						</button>
+					</div>
+					<table id="noticeBoardTB" class="table table-bordered">
+						<thead  class="table table-info table-striped">
+							<tr>
+								<th>게시물번호</th>
+								<th>제목</th>
+								<th>작성자</th>
+								<th>작성일</th>
+							</tr>
+						</thead>
+						<tbody id="listBody">
+							<!-- 공지사항 리스트 들어오는 위치 -->
+						</tbody>
+						<tfoot>
+							
+							<tr>
+								<td colspan="4">
+									<!-- 나중에 페이징 처리? -->
+									<nav aria-label="...">
+										<ul id="pagingArea" style="display: inline-flex;" class="pagination pagination-sm">
+										
+										</ul>
+									</nav>
+								</td>
+							</tr>
+						</tfoot>
+					</table>
+				</div>
+			</div>
+		</div>
+		
+		<div class="grid-stack-item grid2" gs-x="8" gs-y="0" gs-w="4" gs-h="5">
+			<div class="grid-stack-item-content tb">
+				<div>투표 위치</div>
+			</div>
+		</div>
+		
+		<!----------------------------------------------- noticeInsert 용 모달창 ----------------------------------------------------->
+		<!-- Grids in modals -->
+		<div class="modal fade" id="exampleModalgrid" tabindex="-1" aria-labelledby="exampleModalgridLabel" aria-modal="true">
+		    <div class="modal-dialog modal-lg">
+		        <div class="modal-content">
+		        	<div class="card">
+		        		<div class="card-header" id="noticeCardHeader">
+		        			<button style="float: right;" type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+		        			<h3>공지사항 작성</h3>
+		        		</div>
+		        		<div class="card-body">
+		        			<form id="noticeBoardForm" method="post" action="${pageContext.request.contextPath}/noticeBoardInsert.do">
+								<div class="form-floating mb-3">
+									<div class="form-floating">
+									  <input type="text" name="boardTitle" class="form-control" id="floatingTitle" placeholder="글제목을 입력하세요">
+									  <label for="floatingTitle">글제목</label>
+									</div>
+								</div>
+								<!-- 로그인 한 직원의 name 들어가야 한다. -->
+								<div class="form-floating mb-3">
+									<div class="form-floating">
+									  <input type="text" name="boardWriter" class="form-control" id="floatingWriter" placeholder="작성자를 입력하세요">
+									  <label for="floatingWriter">작성자</label>
+									</div>
+								</div>
+							  	<h5>글내용</h5> 
+							  	<input type="text" name="boardContent" id="boardContent">
+							<input id="noticeBoardSubmitBtn" type="submit" value="작성하기" class="btn btn-primary" >    
+							</form>        	
+		        		</div>
+		        	</div>
+		        </div>
+		    </div>
+		</div>
+		<!------------------------------------------------------------------------------------------------------------------------->
+		
+		
+		<!----------------------------------------------- noticeUpdate 용 모달창 ----------------------------------------------------->
+		<!-- Grids in modals -->
+		<div class="modal fade" id="exampleModModalgrid" tabindex="-1" aria-labelledby="exampleModalgridLabel" aria-modal="true">
+		    <div class="modal-dialog modal-lg">
+		        <div class="modal-content">
+		        	<div class="card">
+		        		<div class="card-header" id="noticeCardHeader">
+		        			<button style="float: right;" type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+		        			<h3>공지사항 수정</h3>
+		        		</div>
+		        		<div class="card-body">
+		        			<form id="noticeBoardModForm" method="post" action="${pageContext.request.contextPath}/noticeBoardInsert.do">
+		        				<input type="hidden" >
+								<div class="form-floating mb-3">
+									<div class="form-floating">
+									  <input type="text" name="boardTitle" class="form-control" id="modTitle" placeholder="글제목을 입력하세요">
+									  <label for="floatingTitle">글제목</label>
+									</div>
+								</div>
+								<!-- 로그인 한 직원의 name 들어가야 한다. -->
+								<div class="form-floating mb-3">
+									<div class="form-floating">
+									  <input type="text" name="boardWriter" class="form-control" id="modWriter" placeholder="작성자를 입력하세요">
+									  <label for="floatingWriter">작성자</label>
+									</div>
+								</div>
+							  	<h5>글내용</h5> 
+							  	<input type="text" name="boardContent" id="boardModContent">
+							<input id="noticeBoardModSubmitBtn" type="submit" value="수정하기" class="btn btn-primary" >    
+							</form>        	
+		        		</div>
+		        	</div>
+		        </div>
+		    </div>
+		</div>
+		<!------------------------------------------------------------------------------------------------------------------------->
+		
+		
+</div>		
+
+<form name="noticeSearchForm" method="post">
+	<security:csrfInput/>
+	<input type="hidden" name="page">
+</form>
+
+<script>
+// CKEDITOR 사용하려면 넣어야 함. ----------------------------------------------------------
+CKEDITOR.replace('boardContent');
+CKEDITOR.replace('boardModContent');
+//------------------------------------------------------------------------------------
+
+
+// 드래그 앤 드랍 용 ----------------------------------------------------------------------
+var grid = GridStack.init({});
+$("tbody:not(.disable)").on("click", ".datatr", function(event){
+	$(this).siblings(".datatr").removeClass("active");
+	$(this).toggleClass("active");
+});
+//------------------------------------------------------------------------------------ 
+
+
+// 게시물 상세 조회용 ----------------------------------------------------------------------
+const noticeBoardDiv = $("#noticeBoardDiv");
+const noticeBoardDivGrid = $("#noticeBoardDivGrid");
+
+const fn_noticeDetail = (boardKey) =>{
+	
+	$("#noticeBoardDiv").remove();
+	console.log("지웠다");
+	console.log(boardKey);
+
+	let viewUrl = `/FinalPJ/noticeBoardDetail.do?what=${boardKey}`;
+	
+	$.getJSON("/FinalPJ/noticeBoardDetail.do?what=" + boardKey).done(function(resp){
+		console.log(resp);
+		
+		let notice = resp;
+
+		let noticeBoardKey = resp.boardKey; 
+
+		let noticeDetailTages = noticeBoardDivGrid.append(
+				$("<div id='noticeBoardDiv'>").append(
+					$("<div id='noticeDetailCard' class=card style='border : 1px solid #e5e5f2; padding : 10px; margin : 10px;'>").append(
+						$("<div class='card-header'>").append(
+							$("<p style='margin-bottom: 0px;'>").html("No." + notice.boardKey),
+							$("<h3 style='text-align: center; margin-bottom: 0px;'>").html(notice.boardTitle)
+									
+							), // card header 끝
+						$("<div class='card-body'>").append(
+							$("<p style='margin-bottom: 5px;'>").html("작성일 | " + notice.boardDate),		
+							$("<p>").html("작성자 | " + notice.empName),
+							$("<div style='border : 1px solid #e5e5f2; padding : 10px;'>").append(
+								$("<p class='card-text'>").html(notice.boardContent)
+								)
+							), // card body 끝
+						$("<div class='card-footer'>").append(
+								$("<input type='button' class='btn btn-secondary' value='목록으로' onclick=\'noticeListreload();'>"),
+								$("<div style='float : right;'>").append(
+									$("<input type='button' id='goSubmitBtn' data-boardKey= " + noticeBoardKey + " data-bs-toggle='modal' data-bs-target='#exampleModModalgrid' class='btn btn-primary' value='수정' style='margin-right : 5px;'>"),
+									$("<form method='post' id='noticeBoardDelForm' action='${pageContext.request.contextPath}/noticeBoardDelete.do'>").append(
+// 										$("<input type='hidden' name='${_csrf.parameterName}' value='${_csrf.token}' />"), <!-- CSRF 토큰 추가 -->
+										$("<input type='submit' id='noticeBoardDelBtn' data-boardKey= " + noticeBoardKey + " class='btn btn-danger' value='삭제'>")
+									)
+									
+								)
+							) // card footer 끝
+						) // card 끝
+					) // noticeBoardDiv 끝
+				) // noticeBoardDivGrid 끝
+				
+	}); // getJSON 끝
+	
+} // fn_noticeDetail 끝
+//------------------------------------------------------------------------------------ 
+
+
+// 상세보기에서 목록 다시 불러오기 ------------------------------------------------------------
+const noticeListreload = () =>{
+	let noticeDetailCard = $("#noticeDetailCard");
+	noticeDetailCard.remove();
+	console.log("지웠다");
+	
+	$("#noticeBoardDiv").append(
+		$("<div id='noticeBoardHeader'>").append(
+			$("<h3 id='noticeH4'>").html("공지사항"),
+			$("<button type='button' id='noticeBoardBtn' class='btn btn-primary' data-bs-toggle='modal' data-bs-target='#exampleModalgrid'>").html("게시글 작성")
+		),
+		$("<table id='noticeBoardTB' class='table table-bordered'>").append(
+			$("<thead class='table table-info table-striped'>").append(
+				$("<tr>").append(
+					$("<th>").html("게시물번호"),		
+					$("<th>").html("제목"),		
+					$("<th>").html("작성자"),		
+					$("<th>").html("작성일")
+				)		
+			),
+			$("<tbody id='listBody'>"),
+			$("<tfoot>").append(
+				$("<tr>").append(
+					$("<td colspan='4'>").append(
+							$("<nav aria-label='...'>").append(
+								$("<ul id='pagingArea'  style='display: inline-flex;' class='pagination pagination-sm'>")
+							)
+					)		
+				)		
+			)
+		) // table 끝
+	
+	); // noticeBoardDiv 끝
+	
+	noticeList();	
+	
+}
+
+//------------------------------------------------------------------------------------ 
+
+
+// 게시물 리스트 조회용 --------------------------------------------------------------------
+
+const noticeList = () => {
+	const listBody = $("#listBody");
+	const pagingArea = $("#pagingArea");
+
+  let fn_makeTr = function(notice) {
+    let trs = $("<tr>").append(
+      $("<td>").html(
+        '<a onclick=\"fn_noticeDetail(' + notice.boardKey + ');" >' +
+        notice.boardKey +
+        "</a>"
+      ),
+      $("<td>").html(notice.boardTitle),
+      $("<td>").html(notice.empName),
+      $("<td>").html(notice.boardDate)
+    );
+
+    return trs;
+  };
+
+  let noticeSearchForm = $("[name=noticeSearchForm]").on("submit", function(event) {
+    event.preventDefault();
+
+    let data = $(this).serialize();
+    $.ajax({
+      url: "/FinalPJ/noticeBoardList.do",
+      data: data,
+      dataType: "json",
+      method : "post"
+      
+    }).done(function(resp, textStatus, jqXHR) {
+      listBody.empty();
+      pagingArea.empty();
+
+      let trTags = [];
+      if (resp.dataList.length > 0) {
+    	  
+    	  
+        $.each(resp.dataList, function(idx, notice) {
+          trTags.push(fn_makeTr(notice));
+        });
+        pagingArea.html(resp.pagingHTML);
+      } else {
+        trTags.push(
+          $("<tr>").html(
+            $("<td colspan='4'>").html("게시글이 없습니다.")
+          )
+        );
+        pagingArea.html(resp.pagingHTML);
+      }
+      listBody.append(trTags);
+    }).fail(function(jqXHR, status, error) {
+      console.log(`상태코드 : ${status}, 에러메시지 : ${error}`);
+    });
+
+    return false;
+  }).submit();
+
+  // fn_paging 함수를 전역으로 선언
+  window.fn_paging = function(page, event) {
+    noticeSearchForm.find("[name=page]").val(page);
+    noticeSearchForm.submit();
+    noticeSearchForm.find("[name=page]").val("");
+    return false;
+  };
+
+  // 페이지 번호 클릭시 이벤트 등록
+//   pagingArea.on("click", "a", function(event) {
+//     event.preventDefault();
+//     let page = $(this).data("page");
+//     fn_paging(page, event);
+//   });
+};
+
+noticeList();
+
+//------------------------------------------------------------------------------------ 
+
+// 게시물 Insert용 ----------------------------------------------------------------------
+let noticeInsertBtn = $("#noticeInsertBtn");
+
+let noticeBoardForm = $("#noticeBoardForm");
+
+noticeBoardForm.on("submit", function(event){
+	event.preventDefault();
+	alert("동기 막기")
+	
+// 	let data = $(this).serialize();
+
+	let noticeData = {
+			boardTitle : $("input[name=boardTitle]").val(),
+			boardWriter : $("input[name=boardWriter]").val(),
+			boardContent : CKEDITOR.instances.boardContent.getData()
+	};
+
+	console.log("check:",noticeData);
+	$.ajax({
+		method : "post",
+		url : "/FinalPJ/noticeBoardInsert.do",
+		data : JSON.stringify(noticeData),
+		contentType: 'application/json; charset=utf-8',
+		dataType : "text",
+		beforeSend: function (xhr) {   /*데이터를 전송하기 전에 헤더에 csrf값을 설정한다*/
+            xhr.setRequestHeader("${_csrf.headerName}", "${_csrf.token}");
+        },
+		success : function(resp){
+			console.log(resp);
+			console.log("성공");
+			$('#exampleModalgrid').modal('hide');
+			noticeBoardForm[0].reset();
+			noticeList();
+			
+		},
+	    error: function (request, status, error) {
+	        console.log("code: " + request.status)
+	        console.log("message: " + request.responseText)
+	        console.log("error: " + error);
+	    }
+	});	
+	return false;
+});
+
+
+
+//------------------------------------------------------------------------------------ 	
+
+
+// 게시물 수정 ---------------------------------------------------------------------------
+
+let noticeBoardModForm = $("#noticeBoardModForm").on("submit", function(event){
+	event.preventDefault();
+	
+	console.log("눌렀다.");
+
+	let boardKey = $("#goSubmitBtn").data("boardkey");
+
+	console.log(boardKey);
+	
+	let noticeModData = {
+			// boardKey 수정해야함.
+			boardKey : boardKey,
+			boardTitle : $("#modTitle").val(),
+			boardWriter : $("#modWriter").val(),
+			boardContent : CKEDITOR.instances.boardModContent.getData()
+	};
+	
+	console.log("check:",noticeModData);
+	
+	$.ajax({
+		method : "post",
+		url : "/FinalPJ/noticeBoardUpdate.do",
+		data : JSON.stringify(noticeModData),
+		contentType: 'application/json; charset=utf-8',
+		dataType : "text",
+		beforeSend: function (xhr) {   /*데이터를 전송하기 전에 헤더에 csrf값을 설정한다*/
+            xhr.setRequestHeader("${_csrf.headerName}", "${_csrf.token}");
+        },
+		success : function(resp){
+			console.log(resp);
+			console.log("성공");
+			fn_noticeDetail(noticeModData.boardKey);
+			$('#exampleModModalgrid').modal('hide');
+			
+		},
+	    error: function (request, status, error) {
+	        console.log("code: " + request.status);
+	        console.log("message: " + request.responseText);
+	        console.log("error: " + error);
+	    }
+	});	
+	
+	return false;
+	
+})
+
+//------------------------------------------------------------------------------------ 	
+
+// 게시물 삭제 ---------------------------------------------------------------------------
+	
+let noticeBoardDelForm = $("#noticeBoardDelForm");
+	
+$(document).on("submit", noticeBoardDelForm,  function(event){
+	event.preventDefault();
+	
+	console.log("눌렀다.");
+
+	let delBoardKey = $("#noticeBoardDelBtn").data("boardkey");
+
+	console.log(delBoardKey);
+	
+	$.ajax({
+		method : "post",
+		url : "/FinalPJ/noticeBoardDelete.do",
+		data : JSON.stringify(delBoardKey),
+		contentType: 'application/json; charset=utf-8',
+		dataType : "text",
+		beforeSend: function (xhr) {   /*데이터를 전송하기 전에 헤더에 csrf값을 설정한다*/
+            xhr.setRequestHeader("${_csrf.headerName}", "${_csrf.token}");
+        },
+		success : function(resp){
+			console.log(resp);
+			console.log("delete 성공");
+			noticeListreload();
+			
+		},
+	    error: function (request, status, error) {
+	        console.log("code: " + request.status);
+	        console.log("message: " + request.responseText);
+	        console.log("error: " + error);
+	    }
+	});	
+	
+	return false;
+	
+})
+//------------------------------------------------------------------------------------ 	
+</script>

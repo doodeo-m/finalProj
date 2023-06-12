@@ -1,0 +1,18 @@
+package kr.or.ddit.radiology.dao;
+
+import java.util.List;
+
+import org.apache.ibatis.annotations.Mapper;
+
+import kr.or.ddit.vo.WaitingHistoryVO;
+
+@Mapper
+public interface RadiologyDAO {
+	
+	/**
+	 * x-ray실, MRI실 대기실 환자 조회
+	 * @return
+	 */
+	public List<WaitingHistoryVO> selectWaitingList();
+	
+}

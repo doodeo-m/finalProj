@@ -1,0 +1,62 @@
+package kr.or.ddit.noticeBoard.service;
+
+import java.util.List;
+
+import javax.inject.Inject;
+
+import org.springframework.stereotype.Service;
+
+import kr.or.ddit.noticeBoard.dao.NoticeBoardDAO;
+import kr.or.ddit.vo.NoticeBoardVO;
+import kr.or.ddit.vo.Pagination;
+import lombok.extern.slf4j.Slf4j;
+
+@Slf4j
+@Service
+public class NoticeBoardServiceImpl implements NoticeBoardService {
+
+	@Inject
+	private NoticeBoardDAO noticeDAO;
+	
+	@Override
+	public void noticeBoardList(Pagination<NoticeBoardVO> pagination) {
+		int totalRecord = noticeDAO.selectTotalRecord(pagination);
+		pagination.setTotalRecord(totalRecord);
+		
+		List<NoticeBoardVO> list = noticeDAO.noticeBoardList(pagination);
+		pagination.setDataList(list);
+	}
+
+	@Override
+	public int noticeBoardInsert(NoticeBoardVO notice) {
+		return noticeDAO.noticeBoardInsert(notice);
+	}
+
+	@Override
+	public NoticeBoardVO noticeBoardDetail(int boardKey) {
+		NoticeBoardVO notice = noticeDAO.noticeBoardDetail(boardKey);
+//		noticeDAO.updateNoticeBoardHit(boardKey);
+		return notice;
+	}
+
+	@Override
+	public int noticeBoardModify(NoticeBoardVO noticeBoard) {
+		String boardCont = noticeBoard.getBoardContent();
+		log.info("내용 확인={}", boardCont);
+		boardCont.replace("\n", "");
+		int rowcnt = noticeDAO.noticeBoardUpdate(noticeBoard);
+		return rowcnt;
+	}
+
+	@Override
+	public int noticeBoardRemove(int boardKey) {
+		return noticeDAO.noticeBoardDelete(boardKey);
+		
+	}
+
+//	@Override
+//	public void noticeBoardCount(int boardKey) {
+//		noticeDAO.updateNoticeBoardHit(boardKey);
+//	}
+
+}

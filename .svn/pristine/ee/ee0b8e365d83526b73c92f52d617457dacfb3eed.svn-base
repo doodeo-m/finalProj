@@ -1,0 +1,28 @@
+package kr.or.ddit.poi.service;
+
+import javax.inject.Inject;
+
+import org.springframework.stereotype.Service;
+
+import kr.or.ddit.poi.dao.PoiCostInsertDAO;
+import kr.or.ddit.vo.PayDetailVO;
+
+@Service
+public class PoiCostInsertServiceImpl implements PoiCostInsertService {
+	@Inject
+	private PoiCostInsertDAO dao;
+
+	/**
+	 * 접수페이지에서 POI 파일 다운로드하면 진료확인서 금액 추가하는 메소드
+	 * @param receiptKey
+	 * @return
+	 */
+	@Override
+	public int insertDocPay(String receiptKey) {
+		PayDetailVO payDetail = new PayDetailVO();
+		payDetail.setReceiptKey(receiptKey);
+		return dao.insertDocPay(payDetail);
+		 
+	}
+
+}

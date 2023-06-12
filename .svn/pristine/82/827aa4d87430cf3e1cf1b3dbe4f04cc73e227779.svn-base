@@ -1,0 +1,95 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="kr.or.ddit.surgery.dao.SurgeryDAO">
+	
+	<select id="selectPreExaminationList" resultType="kr.or.ddit.vo.PatientVO">
+		SELECT P.*, HOSPITALIZE_RECORD_KEY
+		FROM HOSPITALIZE_RECORD HR LEFT OUTER JOIN PATIENT P ON (HR.PATIENT_KEY = P.PATIENT_KEY)
+		WHERE STATUS IS NULL
+		ORDER BY HOSPITALIZE_RECORD_KEY
+	</select>
+	
+	<select id="selectMedicalChart" parameterType="String" resultType="kr.or.ddit.vo.MedicalChartVO">
+		SELECT 
+		    MC.CHART_KEY
+		    , PATIENT_KEY
+		    , (SELECT PATIENT_NAME FROM PATIENT WHERE PATIENT.PATIENT_KEY = MC.PATIENT_KEY) AS PATIENT_NAME
+		    , (SELECT DISEASE_NM_KR FROM DISEASE WHERE DISEASE.DISEASE_KEY = D.DISEASE_KEY) AS DISEASE_NAME
+		    , (SELECT SURGERY_KIND_NAME FROM SURGERY_KIND WHERE SURGERY_KIND_KEY = ORDER_KIND) AS ORDER_NAME
+		    , (SELECT EMP_NAME FROM EMP WHERE EMP.EMP_KEY = MC.EMP_KEY) AS EMP_NAME
+		    , MC.CHART_CONT
+		FROM( 
+		    SELECT CHART_KEY, ORDER_KIND
+		    FROM HOSPITALIZE_RECORD HR 
+		            LEFT OUTER JOIN ORDER_HISTORY OH ON(HR.ORDER_KEY = OH.ORDER_KEY)
+		    WHERE HOSPITALIZE_RECORD_KEY = #{hospitalizeRecordKey}
+		
+		)A LEFT OUTER JOIN MEDICAL_CHART MC ON (A.CHART_KEY = MC.CHART_KEY)
+		    LEFT OUTER JOIN DIAGNOSIS D ON (A.CHART_KEY = D.CHART_KEY)
+	</select>
+	
+	<select id="selectPreExaminationKey" resultType="String">
+		SELECT 'EX' || LPAD(PRE_EXAMINATION_SEQ.NEXTVAL,5,'0')
+		FROM DUAL
+	</select>
+	
+	<insert id="insertPreExamination" parameterType="kr.or.ddit.vo.PreExaminationVO">
+		INSERT INTO PRE_EXAMINATION(
+		    PRE_EXAMINATION_KEY
+		    , HOSPITALIZE_RECORD_KEY
+		    , BLOOD_TEST
+		    , ECG
+		    , URINALYSIS
+		    , PULMONARY_TEST
+		    , PRE_EXAMINATION_NOTE
+		    , PRE_EXAMINATION_DATE
+		) VALUES(
+		    #{preExaminationKey}
+		    , #{hospitalizeRecordKey}
+		    , #{bloodTest}
+		    , #{ecg}
+		    , #{urinalysis}
+		    , #{pulmonaryTest}
+		    , #{preExaminationNote}
+		    , SYSDATE
+		)
+	</insert>
+	
+	<update id="updateHospitalizeRecord" parameterType="String">
+		UPDATE HOSPITALIZE_RECORD
+		SET
+		    STATUS = #{status}
+		WHERE 
+		    HOSPITALIZE_RECORD_KEY = #{hospitalizeRecordKey}
+	</update>
+	
+	<insert id="insertPayDetailExamination" parameterType="String">
+		INSERT INTO PAY_DETAIL(
+		    PAY_DETAIL_KEY
+		    , PAY_KEY
+		    , PAY_KIND
+		    , PAY_COST
+		    , PAY_PERCENTAGE
+		)
+		SELECT 
+		    'PAY' || LPAD(PAY_DIETAIL_SEQ.NEXTVAL,3,'0')
+		    , PAY_KEY
+		    , 'PK06'
+		    , 10000
+		    ,0
+		FROM PAY
+		WHERE HOSPITALIZE_RECORD_KEY = #{hospitalizeRecordKey} 
+	</insert>
+	
+	<select id="selectPreExaminationCompleteList" resultType="kr.or.ddit.vo.PatientVO">
+		SELECT 
+		    PATIENT_KEY
+		    , (SELECT PATIENT_NAME FROM PATIENT WHERE PATIENT.PATIENT_KEY = HR.PATIENT_KEY) AS PATIENT_NAME
+		    , STATUS
+		    , PRE_EXAMINATION_NOTE
+		FROM PRE_EXAMINATION PE 
+		        LEFT OUTER JOIN HOSPITALIZE_RECORD HR ON (PE.HOSPITALIZE_RECORD_KEY = HR.HOSPITALIZE_RECORD_KEY)
+		WHERE STATUS IS NOT NULL
+		ORDER BY PRE_EXAMINATION_DATE DESC
+	</select>
+</mapper>

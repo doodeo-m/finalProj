@@ -1,0 +1,7 @@
+# file upload setting
+maxInMemorySize=10240
+maxUploadSize=102400000
+maxUploadSizePerFile=10240000
+
+xRayData=/resources/images/radiologyData/Xray
+MRIData=/resources/images/radiologyData/MRI

@@ -1,0 +1,10 @@
+package kr.or.ddit.product.service;
+
+import kr.or.ddit.vo.ProductOrderRecordVO;
+
+import java.util.List;
+
+public interface ProductOrderRecordService {
+    public List<ProductOrderRecordVO> porList();
+    public int insertPor(List<ProductOrderRecordVO> vo);
+}

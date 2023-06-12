@@ -1,0 +1,47 @@
+package kr.or.ddit.emp.controller;
+
+import java.util.List;
+
+import javax.inject.Inject;
+
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.ResponseBody;
+import org.springframework.web.bind.annotation.RestController;
+
+import kr.or.ddit.emp.service.EmpService;
+import kr.or.ddit.vo.EmpVO;
+import lombok.extern.slf4j.Slf4j;
+
+@Slf4j
+@RestController
+public class EmpController {
+	@Inject
+	private EmpService service;
+
+	@GetMapping(value = "/empList", produces = "application/json;charset=utf-8")
+	@ResponseBody
+	public List<EmpVO> getEmp() {
+		List<EmpVO> empList = service.retrieveEmpList();
+		log.debug("사원목록 출력하기 {}", empList);
+		return empList;
+	}
+
+	@GetMapping(value = "/detail", produces = "application/json;charset=utf-8")
+	@ResponseBody
+	public EmpVO empVO(@RequestParam String empKey) {
+		log.info("어떤게오려나????",empKey);
+		EmpVO selectEmp = service.selectEmp(empKey);
+		return selectEmp;
+	}
+
+	@PostMapping(value = "/empUpdate", produces = "application/json;charset=utf-8")
+	@ResponseBody
+	public void empUpdate(@RequestBody EmpVO vo) {
+		log.info("vo가 어떤게 넘겨오냐!!! {}", vo);
+		service.updateEmp(vo);
+	}
+
+}

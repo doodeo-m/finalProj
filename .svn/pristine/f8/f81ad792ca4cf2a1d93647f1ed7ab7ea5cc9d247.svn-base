@@ -1,0 +1,67 @@
+package kr.or.ddit.radiology.service;
+
+import java.io.File;
+import java.util.List;
+import java.util.Optional;
+
+import javax.inject.Inject;
+
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.stereotype.Service;
+
+import kr.or.ddit.attach.service.AttachFileGroupService;
+import kr.or.ddit.radiology.dao.RadiologyDAO;
+import kr.or.ddit.vo.AttatchFileGroupVO;
+import kr.or.ddit.vo.RadiologyVO;
+import kr.or.ddit.vo.WaitingHistoryVO;
+import lombok.extern.slf4j.Slf4j;
+
+@Slf4j
+@Service
+public class RadiologyServiceImpl implements RadiologyService {
+	
+	@Inject
+	private RadiologyDAO radiologyDAO;
+	@Inject
+	private AttachFileGroupService attachFileGroupService;
+	
+	// 파일타입
+	@Value("#{appInfo.xRayData}")
+	private File saveXrayFolder;
+	@Value("#{appInfo.MRIData}")
+	private File saveMRIFolder;
+	
+	// URL경로
+	@Value("#{appInfo.xRayData}")
+	private String XrayfolderURL;
+	@Value("#{appInfo.MRIData}")
+	private String MRIfolderURL;
+	
+	
+	
+	@Override
+	public List<WaitingHistoryVO> retrieveWaitingList() {
+		return radiologyDAO.selectWaitingList();
+	}
+
+	@Override
+	public RadiologyVO retrieveRadiology(String orderKey) {
+		return radiologyDAO.selectRadiology(orderKey);
+	}
+	//----xray파일 업로드
+	@Override
+	public int createxrayData(RadiologyVO radiology) {
+		log.info("서비스radiology = {} ", radiology);
+ 		AttatchFileGroupVO atchFileGroup = radiology.getAddFileGroup();
+		Optional.ofNullable(atchFileGroup)
+				.ifPresent((afg)->{
+					attachFileGroupService.insertAttachFileGroup(atchFileGroup, saveXrayFolder);
+					radiology.setAttGroupNo(afg.getAttGroupNo());
+				});
+		int cnt = radiologyDAO.insertXrayRadiology(radiology);
+		log.info("서비스 후 radiology = {} ", radiology);
+		return cnt;
+	}
+
+	
+}

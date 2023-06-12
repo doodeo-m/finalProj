@@ -1,0 +1,25 @@
+package kr.or.ddit.therapy.dao;
+
+import java.util.List;
+
+import org.apache.ibatis.annotations.Mapper;
+
+import kr.or.ddit.vo.MedicalEquipmentVO;
+import kr.or.ddit.vo.ReceiptionVO;
+
+@Mapper
+public interface TherapyDAO {
+	
+	/**
+	 * 물리치료 대기환자 목록
+	 * @return
+	 */
+	public List<ReceiptionVO> ptWaitingPatientList();
+	
+	/**
+	 * 물리치료기구 상태관리를 위한 목록
+	 * @return
+	 */
+	public List<MedicalEquipmentVO> ptEquipmentList();
+	
+}

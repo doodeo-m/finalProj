@@ -1,0 +1,43 @@
+package kr.or.ddit.mTherapy.service;
+
+import java.util.List;
+
+import javax.inject.Inject;
+
+import org.springframework.stereotype.Service;
+
+import kr.or.ddit.mTherapy.dao.MTherapyDAO;
+import kr.or.ddit.vo.MtRecordVO;
+import kr.or.ddit.vo.ReceiptionVO;
+
+@Service
+public class MTherapyServiceImpl implements MTherapyService {
+
+	@Inject
+	private MTherapyDAO mTherapyDAO;
+	
+	
+	@Override
+	public List<ReceiptionVO> mtWaitingPatientList() {
+		return mTherapyDAO.mtWaitingPatientList();
+	}
+
+
+	@Override
+	public ReceiptionVO patientChartDetail(String patientKey, int waitingKey) {
+		return mTherapyDAO.patientChartDetail(patientKey, waitingKey);
+	}
+
+
+	@Override
+	public void mtRecordInsert(MtRecordVO mtRecordVO) {
+		int cnt = mTherapyDAO.mtRecordInsert(mtRecordVO);
+	}
+
+
+	@Override
+	public void mtRecordAssessUpdate(MtRecordVO mtRecordVO) {
+		int cnt = mTherapyDAO.mtRecordAssessUpdate(mtRecordVO);
+	}
+
+}

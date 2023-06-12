@@ -1,0 +1,232 @@
+<%@ page language="java" contentType="text/html; charset=UTF-8"
+    pageEncoding="UTF-8"%>
+<%@ taglib uri="http://java.sun.com/jsp/jstl/core" prefix="c"%>
+
+<!-- 
+	div : grid-stack 상위
+		div : grid-stack-item 하위 아이템
+		gs-x="0" gs-y="4" gs-w="4" gs-h="6"
+		x축, y축, w넓이, h높이
+	script에 var grid = GridStack.init({}); 있어야함
+ -->
+
+ <style>
+	.grid-stack{
+		height: 100hv;
+	}
+	.grid-stack-item{
+		border-radius: 1rem; 
+	}
+	.card{
+		margin: 0;
+		--vz-card-inner-border-radius : 1rem;
+		background-color : white;
+	}
+	.card-header{
+		border-radius: 30px;
+		background-color : #405189;
+		color : white;
+	}
+	.rtBtn{
+		float: right;
+	}
+	.nav-tabs .nav-link.active{
+		background-color: #405189;
+		color: white;
+	}
+	input[type=file]{
+		width: 300px;
+	}
+ </style>
+ 
+<div class="grid-stack"><!-- grid 시작 -->
+
+
+
+	<div class="grid-stack-item card" gs-x="0" gs-y="0" gs-w="3" gs-h="3">
+		<div class="card-header">x-ray 대기환자 조회</div> 
+		<div class="card-body">
+			 <div class="grid-stack-item-content">
+				<h4>-영상학과실</h4>
+				<table class="table table-bordered">
+					<tbody>
+						<tr>
+							<td>1</td>
+							<td>김채현</td>
+							<td>대기중</td>
+							<td><input type="button" class="btn btn-primary callBtn" value="호출"></td>
+						</tr>
+						<tr>
+							<td>1</td>
+							<td>문수정</td>
+							<td>대기중</td>
+							<td><input type="button" class="btn btn-primary callBtn" value="호출"></td>
+						</tr>
+					</tbody>
+				</table>
+			</div>
+		</div>
+	</div> <!-- x-Ray 대기환자 조회 -->
+
+
+	<div class="grid-stack-item card" gs-x="0" gs-y="4" gs-w="3" gs-h="3">
+		<div class="card-header">MRI 예약 목록</div>
+		<div class="card-body">
+			<div class="grid-stack-item-content">
+				<br>
+				<table class="table table-bordered">
+					<tbody>
+						<td>1</td>
+						<td>김채현</td>
+						<td>3시</td>
+						<td><input type="button" class="btn btn-primary InfoBtn" value="조회"></td>
+					</tbody>
+				</table>
+				</div>
+			</div>
+	</div> <!-- MRI 예약 목록 끝-->
+
+	<div class="grid-stack-item card" gs-x="3" gs-y="0" gs-w="4" gs-h="6">
+		<div class="card-header">환자 정보 및 예진표</div>
+		<div class="card-body">
+			<div class="grid-stack-item-content">
+				<h4>- 환자 정보
+				<button type="button" class="btn btn-success btn-sm rtBtn" id="preCheckBtn"
+				data-bs-toggle="modal" data-bs-target="#preCheckModal" >예진표확인</button>
+				</h4>
+					<table class="table table-bordered">
+						<thead>
+							<tr>
+							<th>이름</th>
+							<th>생년월일</th>
+							<th>나이</th>
+							<th>유형</th>
+						</tr>
+						</thead>
+						<tbody id="PInfo">
+							<tr>
+							<td></td>
+							<td></td>
+							<td></td>
+							<td></td>
+						</tr>
+						<tr>
+							<th>증상</th>
+							<td colspan="3"></td>
+						</tr>
+						</tbody>
+					</table>
+					<hr>
+					<p>과거 진료차트 목록</p>
+					<div id="mySimplebar">
+					<table class="table table-bordered">
+						<tbody id="preChartList">
+							과거 x-ray사진 보기
+						</tbody>
+					</table>
+					</div>
+					<hr>
+					<p>오더 내용</p>
+					<table class="table table-bordered">
+						<tbody>
+							<tr>
+								<th>촬영종류</th>
+								<td>x-Ray</td>
+								<th>촬영부위</th>
+								<td>허리</td>
+							</tr>
+							<tr>
+								<th>특이사항</th>
+								<td colspan="3">디스크 의심</td>
+							</tr>
+						</tbody>
+					</table>
+				</div>
+			</div>
+		</div><!-- 환자정보 끝 -->
+
+
+		<div class="grid-stack-item card" gs-x="8" gs-y="0" gs-w="5" gs-h="6">
+			<div class="card-header">촬영업무</div>
+			<div class="card-body">
+			<div class="grid-stack-item-content">
+					<!-- Nav tabs -->
+					<ul class="nav nav-tabs mb-3" role="tablist">
+						<li class="nav-item">
+							<a class="nav-link active" data-bs-toggle="tab" href="#xRayTab" role="tab" aria-selected="false">
+								x-Ray
+							</a>
+						</li>
+						<li class="nav-item">
+							<a class="nav-link" data-bs-toggle="tab" href="#MRITab" role="tab" aria-selected="false">
+								MRI
+							</a>
+						</li>
+					</ul>
+					<!-- Tab panes -->
+					<div class="tab-content  text-muted">
+						<div class="tab-pane active" id="xRayTab" role="tabpanel">
+							x-ray사진 업로드
+							<form id="xRayForm" method="post" enctype="multipart/form-data">
+								<input class="form-control" type="file" name="filename">
+							</form>
+						</div>
+						
+						<div class="tab-pane" id="MRITab" role="tabpanel">
+							MRI 영상 업로드
+							<form id="MRIForm" method="post" enctype="multipart/form-data">
+								<input class="form-control" type="file" name="filename">
+							</form>
+						</div>
+					</div>
+					<hr>
+					<h4>- 의료진 코멘트</h4>
+					<div id="coment" >
+						<textarea rows="5" cols="50" class="form-control" name="cont"></textarea>
+					</div>
+					
+					<br>
+					<input type="button" value="전송" class="btn btn-success">
+				</div>
+			</div>
+		</div><!-- 촬영 자료 업로드 끝 -->
+
+</div><!-- grid stack끝-->
+
+
+
+<!-- 예진표 Modal -->
+<div class="modal fade" id="preCheckModal" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1" aria-labelledby="staticBackdropLabel" aria-hidden="true">
+	<div class="modal-dialog">
+	  <div class="modal-content">
+		<div class="modal-header">
+		  <h1 class="modal-title fs-5" id="staticBackdropLabel">예진표 모달 확인</h1>
+		  <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+		</div>
+		<div class="modal-body">
+		  예진표 모달모달
+		</div>
+		<div class="modal-footer">
+		  <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+		  <button type="button" class="btn btn-primary">Understood</button>
+		</div>
+	  </div>
+	</div>
+  </div>
+
+
+
+
+
+
+
+
+
+
+<script>
+
+
+// 그리드스택 생성
+var grid = GridStack.init({});
+
+</script>

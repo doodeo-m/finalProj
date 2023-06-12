@@ -1,0 +1,231 @@
+<%@ page language="java" contentType="text/html; charset=UTF-8" pageEncoding="UTF-8" %>
+    <meta id="_csrf" name="_csrf" th:content="${_csrf.token}" />
+    <meta id="_csrf_header" name="_csrf_header" th:content="${_csrf.headerName}" />
+    <style>
+        table {
+            font-size: 20pt;
+        }
+
+        .myBody {
+            position: relative;
+            left: 10%;
+            margin-top: 2%;
+            width: 1000px;
+            height: 500px;
+        }
+
+        .imagePart {
+            margin-left: 5%;
+            margin-top: 2%;
+        }
+
+        .updateButton {
+            left: 25%;
+        }
+
+        .modal {
+            margin-top: 10%;
+        }
+    </style>
+    <div class="imagePart">
+        <img class="rounded-circle avatar-xl"
+            src="https://img.tvreportcdn.de/cms-content/uploads/2022/10/13/b2e1eb67-cbd2-4bc1-b890-b08d0ac815c2.jpg"
+            alt="">
+    </div>
+    <div class="myBody">
+        <div class="bPart">
+            <table class="table table-hover">
+                <tr>
+                    <th>사원코드</th>
+                    <td id="tableEmpKey"></td>
+
+                </tr>
+                <tr>
+                    <th>이름</th>
+                    <td id="tableEmpName"></td>
+                </tr>
+                <tr>
+                    <th>나이</th>
+                    <td id="tableEmpAge"></td>
+                </tr>
+                <tr>
+                    <th>전화번호</th>
+                    <td id="tableEmpPhone"></td>
+                </tr>
+                <tr>
+                    <th>주민번호</th>
+                    <td id="tableRegno"></td>
+                </tr>
+            </table>
+        </div>
+        <button type="button" class="btn btn-primary updateButton" data-bs-toggle="modal"
+            data-bs-target="#exampleModalgrid">
+            수정하기</button>
+    </div>
+
+
+
+    <div class="modal fade" id="exampleModalgrid" tabindex="-1" aria-labelledby="exampleModalgridLabel"
+        aria-modal="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="exampleModalgridLabel">개인정보 수정하기</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+
+
+                    <!-- 폼 -->
+                    <form id="empUpdateForm">
+                        <div class="row g-3">
+                            <div class="col-xl-5">
+                                <div>
+                                    <label for="empKeyLabel" class="form-label">사원코드</label> <input type="text"
+                                        class="form-control" name="empKey" id="formEmpKey" readonly>
+                                </div>
+                            </div>
+                            <!--end col-->
+                            <div class="col-xxl-6">
+                                <div>
+                                    <label for="patientName" class="form-label">사원명</label> <input type="text"
+                                        class="form-control" name="empName" id="formEmpName" placeholder="사원명">
+                                </div>
+                            </div>
+                            <!--end col-->
+                            <div class="col-xxl-6">
+                                <div>
+                                    <label for="patientAge" class="form-label">나이</label> <input type="text"
+                                        class="form-control" name="empAge" id="formEmpAge" placeholder="나이">
+                                </div>
+                            </div>
+                            <!--end col-->
+                            <!--end col-->
+
+                            <div class="col-xxl-6">
+                                <div>
+                                    <label for="patientRegno1" class="form-label">주민등록번호</label> <input type="text"
+                                        class="form-control" id="formRegno1" placeholder="주민등록번호" disabled>
+                                </div>
+                            </div>
+                            <!--end col-->
+
+                            <div class="col-xxl-6">
+                                <div>
+                                    <label for="patientPn" class="form-label">연락처</label> <input type="text"
+                                        class="form-control" name="empPhone" id="formEmpPhone" placeholder="연락처">
+                                </div>
+                            </div>
+                            <!--end col-->
+
+
+                            <div></div>
+
+                            <div class="col-xxl-6">
+                                <div>
+                                    <label for="patientType" class="form-label">주소</label> <input type="text"
+                                        class="form-control" name="empAddr" id="formEmpAddr" placeholder="주소">
+                                </div>
+                            </div>
+                            <!--end col-->
+                            <div class="col-xxl-6">
+                                <div>
+                                    <label for="patientSignificant" class="form-label">상세주소</label>
+                                    <input type="text" class="form-control" name="empAddrDetail" id="formEmpAddrDetail"
+                                        placeholder="저장된 데이터가 없습니다">
+                                </div>
+                            </div>
+                            <!--end col-->
+
+                            <div class="col-lg-12">
+                                <div class="hstack gap-2 justify-content-end">
+                                    <button type="button" class="btn btn-light" data-bs-dismiss="modal">등록취소</button>
+                                    <button type="submit" class="btn btn-primary" data-bs-dismiss="modal"
+                                        onclick="modifyProfile()">저장</button>
+                                </div>
+                            </div>
+                            <!--end col-->
+                        </div>
+                        <!--end row-->
+                    </form>
+
+
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const searchtableEmpKey = $('#tableEmpKey')
+        const searchtableEmpName = $('#tableEmpName')
+        const searchtableEmpAge = $('#tableEmpAge')
+        const searchtableEmpPhone = $('#tableEmpPhone')
+        const searchtableRegno = $('#tableRegno')
+
+        // 모달창 안에 있는 input태그 선택
+        const myFormempkey = $('#formEmpKey')   // 사원키
+        const myFormEmpName = $('#formEmpName') // 사원이름
+        const myFormEmpAge = $('#formEmpAge')   // 사원나이
+        const myFormRegno1 = $('#formRegno1')   // 주민번호
+        const myFormPhone = $('#formEmpPhone')  // 전화번호
+        const myFormEmpAddr = $('#formEmpAddr')  // 주소
+        const myFormEmpAddrDetail = $('#formEmpAddrDetail')  // 주소
+
+        const data = () => {
+            let empKey = `${authEmp.empKey}`
+            console.log(empKey)
+            $.ajax({
+                method: 'get',
+                url: '${cPath }/detail?empKey=' + empKey,
+                dataType: 'json',
+                success: function (rslt) {
+                    console.log("data아작스", rslt)
+                    searchtableEmpKey.text(rslt.empKey)
+                    searchtableEmpName.text(rslt.empName)
+                    searchtableEmpAge.text(rslt.empAge)
+                    searchtableEmpPhone.text(rslt.empPhone)
+                    searchtableRegno.text(rslt.empRegno1 + "-" + (rslt.empRegno2 + "").substr(0, 1) + "******")
+
+                    myFormempkey.attr('value', rslt.empKey)
+                    myFormEmpName.attr('value', rslt.empName)
+                    myFormEmpAge.attr('value', rslt.empAge)
+                    myFormRegno1.attr('value', rslt.empRegno1)
+                    myFormPhone.attr('value', rslt.empPhone)
+                    myFormEmpAddr.attr('value', rslt.empAddr)
+                    myFormEmpAddrDetail.attr('value', rslt.empAddrDetail)
+                },
+            });
+        }
+        data();
+
+        let empUpdateForm = $("#empUpdateForm"); // 셀렉트
+
+        empUpdateForm.on("submit", function (event) {
+            event.preventDefault();
+
+            let empVO = {
+                empKey: $("input[name=empKey]").val(),
+                empName: $("input[name=empName]").val(),
+                empAge: $("input[name=empAge]").val(),
+                empPhone: $("input[name=empPhone]").val(),
+                empAddr: $("input[name=empAddr]").val(),
+                empAddrDetail: $("input[name=empAddrDetail]").val()
+            };
+
+            $.ajax({
+                type: "post",
+                url: "${pageContext.request.contextPath}/empUpdate",
+                contentType: 'application/json; charset=UTF-8',
+                data: JSON.stringify(empVO),
+                dataType: "text",
+                beforeSend: function (xhr) {   /*데이터를 전송하기 전에 헤더에 csrf값을 설정한다*/
+                    xhr.setRequestHeader("${_csrf.headerName}", "${_csrf.token}");
+                },
+                success: function (rslt) {
+                    console.log("업데이트 아작스", rslt);
+                    data();
+                }
+            })
+
+        })
+    </script>

@@ -1,0 +1,26 @@
+package kr.or.ddit.vo;
+
+import java.io.Serializable;
+
+import lombok.Data;
+import lombok.EqualsAndHashCode;
+import lombok.ToString;
+
+@Data
+@EqualsAndHashCode(of = "waitingKey")
+@ToString
+public class WaitingHistoryVO implements Serializable{
+
+	private Integer waitingKey;
+	private String receiptKey;
+	private String waitingChangeTime;
+	private String waitingLocation;
+	private String waitingStatus;
+	
+	private String waitingLocationName; // C1 CODE 대기장소
+	private String waitingStatusName;	// C2 대기 상태
+	private String officeKeyName;		// C3 진료실
+	private String ReceiptStatusName;	// C4 접수 상태
+	
+	private ReceiptionVO receipt; // 부모테이블 - 접수테이블
+}

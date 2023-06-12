@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="kr.or.ddit.guardian.dao.GuardianDAO">
+	<resultMap type="kr.or.ddit.vo.GuardianVO" id="guardianMap" autoMapping="true">
+		<id property="guardianKey" column="GUARDIAN_KEY"/>
+		<association property="patient" javaType="kr.or.ddit.vo.PatientVO" autoMapping="true" />
+	</resultMap>
+
+
+	<insert id="insertGuardian" parameterType="kr.or.ddit.vo.GuardianVO">
+		INSERT INTO GUARDIAN(
+           GUARDIAN_KEY, GUARDIAN_NAME, GUARDIAN_PN, GUARDIAN_RELATION, PATIENT_KEY)
+		SELECT 
+             GUARDIAN_SEQ.NEXTVAL
+		     , #{guardianName, jdbcType=VARCHAR}
+		     , #{guardianPN, jdbcType=VARCHAR}
+		     , #{guardianRelation, jdbcType=VARCHAR}
+             , patient.patient_key
+		FROM patient
+		WHERE patient.patient_key =  #{patientKey, jdbcType=VARCHAR}
+	
+	</insert>
+	
+	<update id="updateGuardian" parameterType="kr.or.ddit.vo.GuardianVO">
+	UPDATE GUARDIAN
+	   SET GUARDIAN_NAME=#{guardianName}
+	       ,GUARDIAN_PN=#{guardianPN}
+	       ,GUARDIAN_RELATION=#{guardianRelation}
+	  WHERE GUARDIAN_KEY=#{guardianKey}
+	</update>
+</mapper>

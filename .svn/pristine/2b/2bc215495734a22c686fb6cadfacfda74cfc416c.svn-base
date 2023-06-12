@@ -1,0 +1,26 @@
+package kr.or.ddit.patient.dao;
+
+import java.util.List;
+
+import org.apache.ibatis.annotations.Mapper;
+
+import kr.or.ddit.vo.PatientVO;
+
+@Mapper
+public interface PatientDAO {
+	
+	//0503 문수정-------------------------------------------------------
+	/**
+	 * 환자리스트 목록 조회
+	 * @return
+	 */
+	public List<PatientVO> selectPatientList();
+	
+	//0503 문수정-------------------------------------------------------
+	/**
+	 * 환자 신규 등록
+	 * @param patient
+	 * @return >= 0 , 성공
+	 */
+	public int insertPatient(PatientVO patient);
+}

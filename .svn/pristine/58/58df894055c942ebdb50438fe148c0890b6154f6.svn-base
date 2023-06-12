@@ -1,0 +1,19 @@
+package kr.or.ddit.vo;
+
+import lombok.Data;
+import lombok.EqualsAndHashCode;
+import lombok.ToString;
+
+@Data
+@ToString
+@EqualsAndHashCode(of = "payDetailKey")
+public class PayDetailVO {
+	private Integer payDetailKey;
+	private Integer payKey;
+	private String payKind;
+	private Integer payCost;
+	
+	
+	// 진료 내역 추가
+	private String	chartKey;
+}

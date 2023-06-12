@@ -1,0 +1,26 @@
+package kr.or.ddit.receipt.controller;
+
+import kr.or.ddit.receipt.service.ReceiptService;
+import kr.or.ddit.vo.ReceiptionVO;
+import lombok.extern.slf4j.Slf4j;
+import org.springframework.http.MediaType;
+import org.springframework.stereotype.Controller;
+import org.springframework.web.bind.annotation.*;
+
+import javax.inject.Inject;
+
+@Slf4j
+@Controller
+@RequestMapping("/insert")
+public class ReceiptController {
+    @Inject
+    private ReceiptService service;
+
+    @PostMapping(value = "insertWaiting", produces = MediaType.APPLICATION_JSON_VALUE)
+    @ResponseBody
+    public int insert(@RequestBody ReceiptionVO vo) {
+        log.info("vo잘 넘어왔는가!!!!!!!!!!!!!!!!!!!!!! {}", vo);
+        int cnt = service.insertWaiting(vo);
+        return cnt;
+    }
+}

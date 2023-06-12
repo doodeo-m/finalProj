@@ -1,0 +1,22 @@
+package kr.or.ddit.vo;
+
+import java.io.Serializable;
+
+import lombok.Data;
+import lombok.EqualsAndHashCode;
+import lombok.ToString;
+
+@Data
+@EqualsAndHashCode(of = "buyerKey")
+@ToString
+public class BuyerVO implements Serializable{
+	private Integer buyerKey;
+	private String buyerName;
+	private String buyerTel;
+	private String buyerCharger;
+	private String buyerEmail;
+	private String contractDate;
+	private String buyerStatus;
+	private String contractEndDate;
+	private String buyerAddress;
+}

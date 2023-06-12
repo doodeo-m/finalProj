@@ -1,0 +1,186 @@
+package kr.or.ddit.poi.controller;
+
+import java.io.FileInputStream;
+import java.io.InputStream;
+import java.text.SimpleDateFormat;
+import java.util.Date;
+
+import javax.inject.Inject;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+
+import org.apache.poi.xssf.usermodel.XSSFSheet;
+import org.apache.poi.xssf.usermodel.XSSFWorkbook;
+import org.springframework.stereotype.Controller;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
+
+import kr.or.ddit.patient.service.PatientService;
+import kr.or.ddit.vo.PatientVO;
+import lombok.extern.slf4j.Slf4j;
+
+@Slf4j
+@Controller
+@RequestMapping("/poi")
+public class PoiController {
+	
+	@Inject
+	private PatientService service;
+
+    @GetMapping("/sample")
+    public void sample(HttpServletRequest request, HttpServletResponse response,
+    		@RequestParam String poiPatientKey
+    		) throws Exception {
+    	
+    	log.info("POI를 위한 환자키~~~~~~~~~~~~~~~~ {} ",poiPatientKey);
+		PatientVO psmc = service.selectMedicalCertificate(poiPatientKey);
+    	
+        String filename = "";
+        String formPath = request.getServletContext().getRealPath("/resources/ajm/excel/medicalcheck.xlsx"); // 양식파일 넣어두기
+
+        log.info("파일경로 {}", formPath);
+        InputStream fis = new FileInputStream(formPath);
+        XSSFWorkbook form_wb = new XSSFWorkbook(fis);
+        XSSFSheet form_sheet = form_wb.getSheetAt(0);
+
+        //양식에 넣어줄 데이터
+        String chartNo = psmc.getChart().getChartKey(); // 차트번호
+        String name = psmc.getPatientName(); // 이름
+        String gender = psmc.getPatientSex();
+        String birth = psmc.getPatientRegno1()+"";
+        String phone = psmc.getPatientPn();
+        String add = psmc.getPAddress();
+        String use = "병가";
+        String code = psmc.getChart().getChartKey();
+        String text = psmc.getDisease().getDiseaseNmKr();
+        Date nowDate = new Date();
+        SimpleDateFormat simpleDateFormat = new SimpleDateFormat("yyyy년 MM월 dd일"); 
+        String strNowDate = simpleDateFormat.format(nowDate); 
+
+//        CellStyle cellStyle = form_wb.createCellStyle();
+//        cellStyle.setAlignment(HorizontalAlignment.CENTER);
+
+        //엑셀 폼에 넣기 (로우와 셀 주의!!!)
+        form_sheet.getRow(1).createCell(1).setCellValue(chartNo);   //  차트번호
+        form_sheet.getRow(2).createCell(2).setCellValue(name);      // 엑셀 3행 C열
+        form_sheet.getRow(2).createCell(5).setCellValue(gender);    // 2행 C열
+        form_sheet.getRow(3).createCell(2).setCellValue(birth);
+        form_sheet.getRow(3).createCell(5).setCellValue(phone);
+        form_sheet.getRow(4).createCell(2).setCellValue(add);
+        form_sheet.getRow(5).createCell(1).setCellValue(use);
+        form_sheet.getRow(7).createCell(1).setCellValue(code);
+        form_sheet.getRow(8).createCell(1).setCellValue(text);
+        form_sheet.getRow(10).createCell(0).setCellValue(strNowDate);
+
+        //form_sheet.getRow(10).createCell(0).setCellStyle();
+
+        //파일 이름, 형식, 헤더 설정
+        filename = "medicalcheck.xlsx";    // 파일 저장할 때 이름
+        response.setContentType("ms-vnd/excel;charset=EUC-KR");
+        response.setHeader("Content-Disposition", "attachment; filename=" + filename);
+        form_wb.write(response.getOutputStream());
+        form_wb.close();
+    }
+
+    /*
+    @GetMapping("/excel")
+    public void downloadExcel(HttpServletResponse response) throws IOException {
+        log.info("여기 타는지 확인하기");
+
+        XSSFWorkbook xssfWb = null;
+        XSSFSheet xssfSheet = null;
+        XSSFRow xssfRow = null;
+        XSSFCell xssfCell = null;
+
+        int rowNo = 0; // 행의 갯수
+        xssfWb = new XSSFWorkbook(); //XSSFWorkbook 객체 생성
+        xssfSheet = xssfWb.createSheet("워크 시트1"); // 워크시트 이름 설정
+
+        // 폰트 스타일
+        XSSFFont font = xssfWb.createFont();
+        font.setFontName(HSSFFont.FONT_ARIAL); // 폰트 스타일
+        font.setFontHeight(20); // 폰트 크기
+        font.setBold(true); // 두껍게
+        //font.setColor(Short.parseShort("#457ba2")); // 폰트 색
+        //font.setColor(new XSSFColor((IndexedColorMap) Color.YELLOW)); // 폰트 색
+
+        // 테이블 셀 스타일
+        CellStyle cellStyle = xssfWb.createCellStyle();
+        xssfSheet.setColumnWidth(0, 0);
+
+        cellStyle.setFont(font); // cellStyle에 font를 적용
+        cellStyle.setAlignment(HorizontalAlignment.CENTER);
+
+        // 셀병합
+        xssfSheet.addMergedRegion(new CellRangeAddress(0, 1, 0, 4));   // 첫행, 마지막행, 첫열, 마지막열 병합
+
+        // 타이틀 생성
+        xssfRow = xssfSheet.createRow(rowNo++); // 행 객체 추가
+        xssfCell = xssfRow.createCell(0); // 추가한 행에 셀 객체 추가
+        xssfCell.setCellStyle(cellStyle); // 셀에 스타일 지정
+        xssfCell.setCellValue("타이틀!");
+
+        xssfSheet.createRow(rowNo++);
+        xssfRow = xssfSheet.createRow(rowNo++); // 빈행 추가
+
+        // 테이블 스타일 설정
+        CellStyle tableCellStyle = xssfWb.createCellStyle();
+        tableCellStyle.setBorderTop(BorderStyle.valueOf((short) 5));
+        tableCellStyle.setBorderBottom(BorderStyle.valueOf((short) 5));
+        tableCellStyle.setBorderLeft(BorderStyle.valueOf((short) 5));
+        tableCellStyle.setBorderRight(BorderStyle.valueOf((short) 5));
+
+        xssfRow = xssfSheet.createRow(rowNo++);
+        xssfCell = xssfRow.createCell(1);
+        xssfCell.setCellStyle(tableCellStyle);
+        xssfCell.setCellValue("셀1");
+
+        xssfCell = xssfRow.createCell(2);
+        xssfCell.setCellStyle(tableCellStyle);
+        xssfCell.setCellValue("셀2");
+
+        xssfCell = xssfRow.createCell(3);
+        xssfCell.setCellStyle(tableCellStyle);
+        xssfCell.setCellValue("셀3");
+
+        xssfCell = xssfRow.createCell(4);
+        xssfCell.setCellStyle(tableCellStyle);
+        xssfCell.setCellValue("셀4");
+
+        xssfCell = xssfRow.createCell(5);
+        xssfCell.setCellStyle(tableCellStyle);
+
+        ////
+        for (int i = 0; i < 5; i++) {
+            xssfRow = xssfSheet.createRow(rowNo++);
+            xssfCell = xssfRow.createCell(1);
+            xssfCell.setCellStyle(tableCellStyle);
+            xssfCell.setCellValue(i + 10);
+
+            xssfCell = xssfRow.createCell(2);
+            xssfCell.setCellStyle(tableCellStyle);
+            xssfCell.setCellValue(i + 11);
+
+            xssfCell = xssfRow.createCell(3);
+            xssfCell.setCellStyle(tableCellStyle);
+            xssfCell.setCellValue(i + 12);
+
+            xssfCell = xssfRow.createCell(4);
+            xssfCell.setCellStyle(tableCellStyle);
+            xssfCell.setCellValue(i + 13);
+
+            xssfCell = xssfRow.createCell(5);
+            xssfCell.setCellStyle(tableCellStyle);
+        }
+
+
+        response.setContentType("application/ms-excel");
+        response.setHeader("Content-Disposition", "attachment;filename=poi.xlsx");
+
+        xssfWb.write(response.getOutputStream());
+        xssfWb.close();
+    }
+
+     */
+}

@@ -1,0 +1,60 @@
+package kr.or.ddit.ward.controller;
+
+import java.util.List;
+
+import javax.inject.Inject;
+
+import org.springframework.http.MediaType;
+import org.springframework.stereotype.Controller;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.ResponseBody;
+
+import kr.or.ddit.vo.CommonCodeVO;
+import kr.or.ddit.vo.HospitalizeRecordVO;
+import kr.or.ddit.vo.MedicalChartVO;
+import kr.or.ddit.vo.NurseChartVO;
+import kr.or.ddit.ward.service.WardService;
+import lombok.extern.slf4j.Slf4j;
+import oracle.jdbc.proxy.annotation.Post;
+
+@Slf4j
+@Controller
+@RequestMapping("/ward")
+public class WardController {
+
+	@Inject
+	private WardService wardService;
+
+	@GetMapping(value = "hospitalizePatientList", produces = MediaType.APPLICATION_JSON_VALUE)
+	@ResponseBody
+	public List<HospitalizeRecordVO> getHospitalizationPatientList() {
+		return wardService.retrieveHospitalizePatientList();
+	}	
+	
+	@GetMapping(value="medicalChart", produces = MediaType.APPLICATION_JSON_VALUE)
+	@ResponseBody
+	public MedicalChartVO getMedicalChart(String orderKey) {
+		
+		return wardService.retrieveMedicalChart(orderKey);
+		
+	}
+	
+	@GetMapping(value = "dietKindList", produces = MediaType.APPLICATION_JSON_VALUE)
+	@ResponseBody
+	public List<CommonCodeVO> getDietKindList(){
+		return wardService.retrieveDietKindList();
+	}
+	
+	@PostMapping(value = "nurseChart", consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.TEXT_PLAIN_VALUE)
+	@ResponseBody
+	public String insertNurseChart(@RequestBody NurseChartVO vo) {
+		
+		log.info(vo.toString());
+		int result = wardService.createNurseChart(vo);
+		return result + "";
+	}
+}

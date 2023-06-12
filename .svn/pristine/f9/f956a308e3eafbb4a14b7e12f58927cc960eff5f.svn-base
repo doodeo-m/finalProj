@@ -1,0 +1,83 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="kr.or.ddit.buyer.dao.BuyerDAO">
+	<resultMap type="kr.or.ddit.vo.BuyerVO" id="buyerMap" autoMapping="true">
+		<id property="buyerKey" column="BUYER_KEY" />
+		<collection property="officeSupplies" ofType="kr.or.ddit.vo.OfficeSuppliesVO" autoMapping="true">
+			<id property="suffliesKey" column="SUFFLIES_KEY"/>
+			<association property="buyer" javaType="kr.or.ddit.vo.BuyerVO" />
+		</collection>
+	</resultMap>
+	
+	<!-- 거래처 목록 조회 셀렉트문 -->
+	<select id="selectBuyerList" resultMap="buyerMap">
+		SELECT
+		    BUYER_KEY, BUYER_NAME, BUYER_TEL,
+		    BUYER_CHARGER, BUYER_EMAIL, CONTRACT_DATE,
+		    BUYER_STATUS, CONTRACT_END_DATE, BUYER_ADDRESS
+		FROM BUYER
+		ORDER BY BUYER_KEY ASC
+	</select>
+	
+	<!-- 거래처 상세 조회하는 셀렉트문 -->
+	<select id="selectBuyer" resultMap="buyerMap" parameterType="string">
+		SELECT
+		    BUYER_NAME,
+		    BUYER_TEL,
+		    BUYER_CHARGER,
+		    BUYER_EMAIL,
+		    CONTRACT_DATE,
+		    BUYER_STATUS,
+		    CONTRACT_END_DATE,
+		    BUYER_ADDRESS
+		FROM
+		    BUYER
+		WHERE   BUYER_KEY = #{buyerKey}
+	</select>
+	
+	<insert id="insertBuyer" parameterType="kr.or.ddit.vo.BuyerVO">
+		INSERT INTO buyer (
+		    buyer_key, buyer_name, buyer_tel
+		    , buyer_charger, buyer_email, contract_date
+		    , buyer_status, contract_end_date, buyer_address
+		) VALUES (
+		    BUYER_SEQ.NEXTVAL
+		    , #{buyerName, jdbcType=VARCHAR}
+		    , #{buyerTel, jdbcType=VARCHAR}
+		    , #{buyerCharger, jdbcType=VARCHAR}
+		    , #{buyerEmail, jdbcType=VARCHAR}
+		    , TO_DATE(#{contractDate, jdbcType=VARCHAR}, 'YY/MM/DD')
+	        , #{buyerStatus, jdbcType=VARCHAR}
+	        , TO_DATE(#{contractEndDate, jdbcType=VARCHAR}, 'YY/MM/DD')
+		    , #{buyerAddress, jdbcType=VARCHAR}
+		)
+	</insert>
+	
+	<update id="updateBuyer" parameterType="kr.or.ddit.vo.BuyerVO">
+	 UPDATE BUYER
+		SET
+		  BUYER_NAME = #{buyerName, jdbcType=VARCHAR}
+		  , BUYER_TEL = #{buyerTel, jdbcType=VARCHAR}
+		  , BUYER_CHARGER = #{buyerCharger, jdbcType=VARCHAR}
+		  , BUYER_EMAIL = #{buyerEmail, jdbcType=VARCHAR}
+		  , CONTRACT_DATE = TO_DATE(#{contractDate, jdbcType=VARCHAR}, 'YY/MM/DD')
+		  , BUYER_STATUS = #{buyerStatus, jdbcType=VARCHAR}
+		  , CONTRACT_END_DATE = TO_DATE(#{contractEndDate, jdbcType=VARCHAR}, 'YY/MM/DD')
+		  , BUYER_ADDRESS = #{buyerAddress, jdbcType=VARCHAR}
+		WHERE
+		  BUYER_KEY = #{buyerKey, jdbcType=INTEGER}
+	</update>
+	
+	<select id="selectOfficeSupplies" resultType="kr.or.ddit.vo.OfficeSuppliesVO">
+		SELECT 
+			A.SUFFLIES_KEY
+			, A.SUFFLIES_NAME
+			, A.BUYER_KEY, B.BUYER_NAME
+			, A.SUFFLIES_STANDARD
+			, A.SUFFLIES_REMINDER
+			, A.LOCATION_KEY 
+		FROM OFFICE_SUPPLIES A LEFT OUTER JOIN BUYER B ON (A.BUYER_KEY = B.BUYER_KEY)
+		ORDER BY SUFFLIES_KEY ASC
+</select>
+	
+</mapper>

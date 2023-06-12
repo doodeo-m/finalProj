@@ -1,0 +1,50 @@
+package kr.or.ddit.emp.controller;
+
+import javax.inject.Inject;
+
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.ResponseBody;
+import org.springframework.web.bind.annotation.RestController;
+
+import kr.or.ddit.emp.service.EmpService;
+import kr.or.ddit.vo.EmpVO;
+import kr.or.ddit.vo.Pagination;
+import lombok.extern.slf4j.Slf4j;
+
+@Slf4j
+@RestController
+public class EmpController {
+	@Inject
+	private EmpService service;
+
+	@PostMapping(value = "/empList", produces = "application/json;charset=UTF-8")
+	@ResponseBody
+	public Pagination<EmpVO> empList(@RequestParam(value = "page", required = false, defaultValue = "1")int currentPage) {
+		log.info("현재페이지파람 {}",currentPage);
+		Pagination<EmpVO> pagination = new Pagination<EmpVO>();
+		pagination.setScreenSize(5);
+		pagination.setCurrentPage(currentPage);
+		log.info("페이지네이션 : {}", pagination);
+		service.empList(pagination);
+		return pagination;
+	}
+
+	@GetMapping(value = "/detail", produces = "application/json;charset=utf-8")
+	@ResponseBody
+	public EmpVO empVO(@RequestParam String empKey) {
+		log.info("어떤게오려나????",empKey);
+		EmpVO selectEmp = service.selectEmp(empKey);
+		return selectEmp;
+	}
+
+	@PostMapping(value = "/empUpdate", produces = "application/json;charset=utf-8")
+	@ResponseBody
+	public void empUpdate(@RequestBody EmpVO vo) {
+		log.info("vo가 어떤게 넘겨오냐!!! {}", vo);
+		service.updateEmp(vo);
+	}
+
+}

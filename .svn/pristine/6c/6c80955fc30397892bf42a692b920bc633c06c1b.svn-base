@@ -1,0 +1,19 @@
+package kr.or.ddit.ward.dao;
+
+import java.util.List;
+
+import org.apache.ibatis.annotations.Mapper;
+
+import kr.or.ddit.vo.HospitalizeRecordVO;
+import kr.or.ddit.vo.WardBedVO;
+
+@Mapper
+public interface WardDAO {
+
+	public List<WardBedVO> selectWardBedStatus();
+
+	public int insertHospitalizeRecord(HospitalizeRecordVO hospitalizeRecordVO);
+
+	public List<HospitalizeRecordVO> selectHospitalizationPatientList();
+	
+}

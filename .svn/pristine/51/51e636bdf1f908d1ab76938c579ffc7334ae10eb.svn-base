@@ -1,0 +1,114 @@
+<%@ page language="java" contentType="text/html; charset=UTF-8" pageEncoding="UTF-8" %>
+    
+
+<div class="grid-stack"> <!-- 그리드스택 공간 -->
+
+    <div class="grid-stack-item card" gs-x="0" gs-y="0" gs-w="2" gs-h="2"> <!-- grid-stack-item을 적어야 적용됨 -->
+        <div class="grid-stack-item-content">
+            <div class="card-header">
+                <h5>입원 환자 관리</h5>
+            </div>
+            <div class="card-body">
+                <table class="table table-bordered">
+                    <thead>
+                        <tr>
+                            <th>환자코드</th>
+                            <th>환자명</th>
+                            <th>나이</th>
+                            <th>병실</th>
+                        </tr>
+                    </thead>
+                    <tbody id="hospitalizationPatientList">
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+
+
+    <div class="grid-stack-item card" gs-x="4" gs-y="0" gs-w="4" gs-h="5">
+        <div class="grid-stack-item-content">
+            <div class="card-header">
+                <h5>병동 배치 상황</h5>
+            </div>
+            <div class="card-body" id="wardStatus">
+
+                <span></span>
+                <table class="table table-bordered">
+                    <thead>
+
+                    </thead>
+                    <tbody>
+
+                    </tbody>
+                </table>
+                <br>
+
+                <span></span>
+                <table class="table table-bordered">
+                    <thead>
+
+                    </thead>
+                    <tbody>
+
+                    </tbody>
+                </table>
+                <br>
+
+                <span></span>
+                <table class="table table-bordered">
+                    <thead>
+
+                    </thead>
+                    <tbody>
+
+                    </tbody>
+                </table>
+                <br>
+
+                <span></span>
+                <table class="table table-bordered">
+                    <thead>
+
+                    </thead>
+                    <tbody>
+
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <div class="grid-stack-item card" gs-x="8" gs-y="0" gs-w="4" gs-h="5" gs-no-resize="true" gs-no-move="true"
+        gs-locked="true"> <!-- grid-stack-item을 적어야 적용됨 -->
+        <div class="grid-stack-item-content">
+            <div class="card-header">
+                <h5>수술 일정</h5>
+            </div>
+            <div class="card-body" id='calendar'>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // 그리드스택 기본설정
+        var grid = GridStack.init({});
+
+        let hospitalizationPatientList = $('#hospitalizationPatientList');
+
+        function getHospitalizationPatientList() {
+            $.ajax({
+                url : "${cPath}/ward/hospitalizationPatientList"
+                , method : "GET"
+                , dataType : "json"
+                , success : (resp) => {
+                    console.log("응답데이터 체킁 : ",resp);
+                    $.each(resp, (index, patient) => {
+                        console.log("환자 한명 데이터",patient)
+                    })
+                }
+            });
+        }
+        getHospitalizationPatientList();
+    </script>

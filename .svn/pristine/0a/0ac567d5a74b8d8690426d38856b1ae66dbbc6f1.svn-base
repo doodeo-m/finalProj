@@ -1,0 +1,83 @@
+<%@ page language="java" contentType="text/html; charset=UTF-8"
+	pageEncoding="UTF-8"%>
+<!DOCTYPE html>
+<html>
+<style>
+body {
+	background-color: #E3F6FF;
+}
+
+.ggg {
+	display: grid;
+	grid-template-columns: 1fr 2fr;
+}
+
+.ddd, .fff {
+	display: grid;
+	height: 100vh;
+	place-content: center;
+}
+
+.mainImage {
+	height: 250px;
+	width: 300px;
+}
+.welcomeComment{
+	text-align: center;
+	vertical-align: middle;
+}
+.grid-container {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  flex-direction: column;
+}
+
+.grid-item {
+  font-size: 20px;
+  text-align: center;
+  height: 150px;
+  width: 150px;
+  border-radius: 1rem;
+  border: none;
+  text-align: center;
+  margin-right: 20px;
+  float: left;
+  margin: 20px;
+  background-color: #8DCBE6;
+  
+}
+
+
+
+
+</style>
+<head>
+<meta charset="UTF-8">
+<title>Insert title here</title>
+</head>
+<body>
+	<div class="ggg">
+		<div class="ddd">
+			<img class="mainImage" src="../resources/images/mainPage/그림1.jpg">
+			<h3 class="welcomeComment">최유림님 환영합니다. (의사)</h3>
+		</div>
+		<div class="grid-container">
+			<div class="container">
+				<input class="grid-item" type="button" value="의사">
+				<input class="grid-item" type="button" value="간호사">
+				<input class="grid-item" type="button" value="물리치료">
+			
+			</div>
+			<div class="container2">
+				<input class="grid-item" type="button" value="영상의학과">
+				<input class="grid-item" type="button" value="원무과">
+				<input class="grid-item" type="button" value="공지사항">
+			</div>
+		</div>
+
+
+	</div>
+
+</body>
+</html>

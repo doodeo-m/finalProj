@@ -1,0 +1,113 @@
+        package kr.or.ddit.medicalChart.controller;
+
+import java.util.ArrayList;
+import java.util.List;
+
+import javax.inject.Inject;
+
+import org.springframework.http.MediaType;
+import org.springframework.stereotype.Controller;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.ResponseBody;
+
+import kr.or.ddit.medicalChart.service.MedicalChartService;
+import kr.or.ddit.vo.CommonCodeVO;
+import kr.or.ddit.vo.DiseaseVO;
+import kr.or.ddit.vo.MedicalChartVO;
+import kr.or.ddit.vo.MedicalEquipmentVO;
+import kr.or.ddit.vo.ReceiptionVO;
+import kr.or.ddit.vo.SurgeryKindVO;
+import lombok.extern.slf4j.Slf4j;
+
+/**
+ * 진료 페이지 컨트롤러
+ * @author dlgpd
+ *
+ */
+@Slf4j
+@Controller
+@RequestMapping("/medicalChart")
+public class medicalChartController {
+
+	// service = medicalChart service
+	@Inject
+	private MedicalChartService medicalChartService;
+	
+	// test 수술 종류 불러오기
+	
+	//230503 이혜연------------------------------------------
+	/**
+	 * 수술 목록 리스트 불러오기
+	 * @return
+	 */
+	@GetMapping("surgeryList")
+	@ResponseBody
+	public List<SurgeryKindVO> getSurgeryList(){
+		List<SurgeryKindVO> list = new ArrayList<SurgeryKindVO>();
+		list = medicalChartService.retrieveSurgeryKindList();
+		return list;
+	}
+	
+	
+	// 물리치료실 장비 불러오기
+	@GetMapping(value = "therapyEqList", produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
+	@ResponseBody
+	public List<MedicalEquipmentVO> getTherapyEqList(){
+		List<MedicalEquipmentVO> list = medicalChartService.retrieveMedicalEquipmentList();
+		return list;
+	}
+	@GetMapping(value = "bodyPartList", produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
+	@ResponseBody
+	public List<CommonCodeVO> getBodyPartList(){
+		List<CommonCodeVO> list = medicalChartService.retrieveBodyPartList();
+		return list;
+	}
+	
+	
+	/**
+	 * 질병코드 목록 불러오기
+	 * @return
+	 */
+	@GetMapping("diseaseList")
+	@ResponseBody
+	public List<DiseaseVO> getDiseaseList(){
+		List<DiseaseVO> list = new ArrayList<DiseaseVO>();
+		list = medicalChartService.retrieveDiseaseAllList();
+		return list;
+	}
+	
+	/**
+	 * 진료대기환자 목록 불러오기
+	 * @return
+	 */
+	@GetMapping(value = "waitingList", produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
+	@ResponseBody
+	public List<ReceiptionVO> getDiseaseList(@RequestParam("officekey") String officeKey){
+		List<ReceiptionVO> list = new ArrayList<ReceiptionVO>();
+		list = medicalChartService.retrieveReceiptionList(officeKey);
+		return list;
+	}
+	
+	// 예진표 조회하기
+	
+	
+	
+	
+	/**
+	 * 과거 진료차트 조회하기
+	 * @param patientKey
+	 * @return
+	 */
+	@GetMapping(value =  "preChartList", produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
+	@ResponseBody
+	public List<MedicalChartVO> getMedicalChartList(@RequestParam("patientKey") String patientKey){
+		List<MedicalChartVO> list = medicalChartService.retrieveMedicalChartList(patientKey);
+		return list;
+	}
+	
+	
+	
+}

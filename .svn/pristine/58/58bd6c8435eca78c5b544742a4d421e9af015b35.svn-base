@@ -1,0 +1,20 @@
+package kr.or.ddit.vo;
+
+import java.io.Serializable;
+
+import lombok.Data;
+import lombok.EqualsAndHashCode;
+import lombok.ToString;
+@Data
+@EqualsAndHashCode(of = "orderKey")
+@ToString
+public class OrderHistoryVO implements Serializable{
+	private String orderKey;
+	private String chartKey;
+	private String orderKind;
+	private String bodyPartKey;
+	private Integer equipmentKey;
+	private String equipmentName;
+	
+	
+}

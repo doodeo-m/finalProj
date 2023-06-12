@@ -1,0 +1,36 @@
+package kr.or.ddit.noticeBoard.service;
+
+import java.util.List;
+
+import kr.or.ddit.vo.NoticeBoardVO;
+
+public interface NoticeBoardService {
+	
+	/**
+	 * 공지 게시판 리스트 조회
+	 * @return
+	 */
+	public List<NoticeBoardVO> noticeBoardList();
+	
+	/**
+	 * 공지 게시판 게시물 작성
+	 * @param notice
+	 */
+	public void noticeBoardInsert(NoticeBoardVO notice);
+	
+	/**
+	 * 공지 게시판 게시물 상세조회
+	 * @param boardKey
+	 * @return
+	 */
+	public NoticeBoardVO noticeBoardDetail(int boardKey);
+	
+	/**
+	 * 공지 게시판 게시물 수정
+	 * @param noticeBoard
+	 */
+	public void noticeBoardModify(NoticeBoardVO noticeBoard);
+	
+	public void noticeBoardRemove(int boardKey);
+	
+}

@@ -1,0 +1,18 @@
+package kr.or.ddit.vo;
+
+import lombok.Data;
+import lombok.EqualsAndHashCode;
+import lombok.ToString;
+
+@Data
+@EqualsAndHashCode(of = {"wardKey", "wardBedKey"})
+@ToString
+public class WardBedVO {
+	
+	private int wardKey; // 병실 번호 
+	private String wardGrade; // 병실 등
+	private int wardPrice; // 병실 가격 
+	
+	private int wardBedKey; // 침상번호 
+	private String wardBedStatus; // 침상 상태
+}

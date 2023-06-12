@@ -1,0 +1,23 @@
+package kr.or.ddit.radiology.service;
+
+import java.util.List;
+
+import javax.inject.Inject;
+
+import org.springframework.stereotype.Service;
+
+import kr.or.ddit.radiology.dao.RadiologyDAO;
+import kr.or.ddit.vo.WaitingHistoryVO;
+
+@Service
+public class RadiologyServiceImpl implements RadiologyService {
+	
+	@Inject
+	private RadiologyDAO radiologyDAO;
+	
+	@Override
+	public List<WaitingHistoryVO> retrieveWaitingList() {
+		return radiologyDAO.selectWaitingList();
+	}
+
+}

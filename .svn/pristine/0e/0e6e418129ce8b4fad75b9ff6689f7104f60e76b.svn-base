@@ -1,0 +1,73 @@
+package kr.or.ddit.ward.service;
+
+import java.util.List;
+import java.util.Map;
+
+import javax.inject.Inject;
+
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+
+import kr.or.ddit.reservation.dao.ReservationDAO;
+import kr.or.ddit.vo.CommonCodeVO;
+import kr.or.ddit.vo.DietVO;
+import kr.or.ddit.vo.HospitalizeRecordVO;
+import kr.or.ddit.vo.MedicalChartVO;
+import kr.or.ddit.vo.NurseChartVO;
+import kr.or.ddit.vo.WaitingHospitalizationVO;
+import kr.or.ddit.vo.WardBedVO;
+import kr.or.ddit.ward.dao.WardDAO;
+
+@Service
+public class WardServiceImpl implements WardService {
+
+	@Inject
+	private WardDAO wardDAO;
+	
+	@Inject
+	private ReservationDAO reservationDAO;
+
+	@Override
+	public List<WardBedVO> retrieveWardBedStatus() {
+		return wardDAO.selectWardBedStatus();
+	}
+
+	@Transactional
+	@Override
+	public void createHospitalizeRecord(Map<String, Object> data) {
+		// 입원 기록 등록
+		HospitalizeRecordVO hospitalizeRecordVO = new HospitalizeRecordVO();
+		hospitalizeRecordVO.setPatientKey(data.get("patientKey").toString());
+		hospitalizeRecordVO.setWardBedKey((Integer) data.get("wardBedKey"));
+		wardDAO.insertHospitalizeRecord(hospitalizeRecordVO);
+		
+		reservationDAO.updateReservationStatus(data.get("waitingKey").toString());
+	}
+
+	@Override
+	public List<HospitalizeRecordVO> retrieveHospitalizePatientList() {
+		return wardDAO.selectHospitalizePatientList();
+	}
+
+	@Override
+	public MedicalChartVO retrieveMedicalChart(String orderKey) {
+		return wardDAO.selectMedicalChart(orderKey);
+	}
+
+	@Override
+	public int createNurseChart(NurseChartVO vo) {
+		return wardDAO.insertNurseChart(vo);
+	}
+
+	@Override
+	public List<CommonCodeVO> retrieveDietKindList() {
+		return wardDAO.selectDietKindList();
+		
+	}
+
+	@Override
+	public int createDiet(DietVO vo) {
+		return wardDAO.insertDiet(vo);
+	}
+
+}

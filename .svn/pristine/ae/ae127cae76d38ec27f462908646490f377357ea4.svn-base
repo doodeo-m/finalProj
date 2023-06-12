@@ -1,0 +1,44 @@
+package kr.or.ddit.therapy.service;
+
+import java.util.List;
+
+import kr.or.ddit.vo.EquipmentStatusRecordVO;
+import kr.or.ddit.vo.MedicalEquipmentVO;
+import kr.or.ddit.vo.ReceiptionVO;
+
+public interface TherapyService {
+	
+	/**
+	 * 물리치료 대기환자 목록
+	 * @return List<ReceiptionVO>
+	 */
+	public List<ReceiptionVO> ptWaitingPatientList(); 
+	
+	/**
+	 * 물리치료기구 상태관리를 위한 목록
+	 * @return List<MedicalEquipmentVO>
+	 */
+	public List<MedicalEquipmentVO> ptEquipmentList();
+	
+	/**
+	 * 물리치료기구 상태
+	 * @param buyerKey
+	 * @return MedicalEquipmentVO
+	 */
+	public MedicalEquipmentVO ptEquipmentDetail(int equipmentKey);
+	
+	/**
+	 * 물리치료 상태 기록 목록 조회
+	 * @param equipmentKey
+	 * @return List<EquipmentStatusRecordVO>
+	 */
+	public List<EquipmentStatusRecordVO> ptEquipmentStatusList(int equipmentKey);
+	
+	
+	/**
+	 * 물리치료기구 상태 점검 입력
+	 * @param eqStatusRecVO
+	 */
+	public void ptEquipmentStatusInsert(EquipmentStatusRecordVO eqStatusRecVO);
+	
+}

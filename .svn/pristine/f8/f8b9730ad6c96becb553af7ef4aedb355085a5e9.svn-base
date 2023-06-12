@@ -1,0 +1,29 @@
+package kr.or.ddit.vo;
+
+import java.io.Serializable;
+
+import lombok.AllArgsConstructor;
+import lombok.Data;
+import lombok.NoArgsConstructor;
+
+@Data
+@NoArgsConstructor
+@AllArgsConstructor
+public class EmpVO implements Serializable{
+	private String empKey;
+	private String empId;
+	private String empPass;
+	private String empName;
+	private Integer empAge;
+	private String empJob;
+	private Integer empRegno1;
+	private Integer empRegno2;
+	private String empPhone;
+	private String empAddr;
+	private String empAddrDetail;
+	private String empHireDate;
+	private String empRetireDate;
+	private String empRetireCheck;
+	private Integer empFileGroupNo;
+	private Integer empLicenseNo;
+}

@@ -1,0 +1,153 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="kr.or.ddit.therapy.dao.TherapyDAO">
+	<resultMap type="kr.or.ddit.vo.ReceiptionVO" id="ptWaitingMap" autoMapping="true">
+		<id property="receiptKey" column="RECEIPT_KEY" />
+		<association property="patient" javaType="kr.or.ddit.vo.PatientVO" autoMapping="true">
+			<id property="patientKey" column="PATIENT_KEY"/>
+			<id property="patientName" column="PATIENT_NAME"/>
+			<id property="patientSex" column="PATIENT_SEX"/>
+			<id property="patientAge" column="PATIENT_AGE"/>
+		</association>
+		<collection property="WaitingList" ofType="kr.or.ddit.vo.WaitingHistoryVO" autoMapping="true"/>
+		<collection property="MChartList" ofType="kr.or.ddit.vo.MedicalChartVO" autoMapping="true">
+			<collection property="orderHistoryVO" ofType="kr.or.ddit.vo.OrderHistoryVO" autoMapping="true">
+				<association property="equipmentKey" javaType="kr.or.ddit.vo.MedicalEquipmentVO" autoMapping="true">
+					<id property="equipmentName" column="EQUIPMENT_NAME"/>
+				</association>
+			</collection>
+		</collection>
+	</resultMap>
+	
+	<resultMap type="kr.or.ddit.vo.MedicalEquipmentVO" id="ptEquipmentMap" autoMapping="true">
+		<association property="buyerVO" javaType="kr.or.ddit.vo.BuyerVO" autoMapping="true">
+			<id property="buyerKey" column="BUYER_KEY"/>
+			<id property="buyerName" column="BUYER_NAME"/>
+			<id property="buyerTel" column="BUYER_TEL"/>
+			<id property="buyerCharger" column="BUYER_CHARGER"/>
+		</association>
+		<collection property="eqStatusRecVO" ofType="kr.or.ddit.vo.EquipmentStatusRecordVO" autoMapping="true" />
+	</resultMap>
+	
+	<resultMap id="equipmentStatusMap" type="kr.or.ddit.vo.MedicalChartVO" autoMapping="true">
+	  <result property="equipmentName" column="EQUIPMENT_NAME" />
+	  <result property="ptEquipmentCode" column="PT_EQUIPMENT_CODE" />
+	  <result property="equipmentStatus" column="EQUIPMENT_STATUS" />
+	  <result property="bodyName" column="BODY_NAME" />
+	</resultMap>
+	
+	
+	<select id="ptWaitingPatientList" resultMap="ptWaitingMap">
+		SELECT 
+		    P.PATIENT_KEY, 
+		    P.PATIENT_NAME, 
+		    P.PATIENT_SEX, 
+		    P.PATIENT_AGE, 
+		    C.CODE_NAME WAITING_STATUS_NAME,
+		    SUBSTR(TO_CHAR(WH.WAITING_CHANGE_TIME,'YYYYMMDD HH24:MI' ),11 ) WAITING_CHANGE_TIME
+		FROM PATIENT P, WAITING_HISTORY WH, RECEIPT R, COMMON_CODE C
+		
+		WHERE P.PATIENT_KEY =R.PATIENT_KEY 
+		
+		AND R.RECEIPT_KEY = WH.RECEIPT_KEY 
+		AND C.CODE = WH.WAITING_STATUS  
+		AND WH.WAITING_LOCATION = 'L004'
+<!-- 		AND TO_CHAR(SYSDATE,'YY/MM/DD') = TO_CHAR( WH.WAITING_CHANGE_TIME,'YY/MM/DD') -->
+		
+		ORDER BY WH.WAITING_CHANGE_TIME 
+	</select>
+	
+	<select id="ptEquipmentList" resultType="kr.or.ddit.vo.MedicalEquipmentVO">
+		SELECT 
+			EQUIPMENT_KEY, 
+			EQUIPMENT_NAME, 
+			EQUIPMENT_MODEL 
+		FROM MEDICLA_EQUIPMENT
+	</select>
+	
+	<select id="ptEquipmentDetail" resultMap="ptEquipmentMap"  parameterType="int">
+		SELECT 
+			ME.EQUIPMENT_NAME, ME.EQUIPMENT_MODEL, 
+			B.BUYER_NAME, B.BUYER_CHARGER, B.BUYER_TEL   
+		FROM MEDICLA_EQUIPMENT ME, BUYER B
+		WHERE ME.BUYER_KEY = B.BUYER_KEY 
+		AND ME.EQUIPMENT_KEY = #{equipmentKey}
+	</select>
+	
+	<select id="ptEquipmentStatusList" resultMap="ptEquipmentMap" parameterType="int">
+		SELECT 
+			TO_CHAR(ER.EQUIPMENT_RECORD_DATE,'YY/MM/DD' ) EQUIPMENT_RECORD_DATE, ER.EQUIPMENT_RECORD_CONTENT, ER.EQUIPMENT_RECORD_WRITER
+		FROM EQUIPMENT_STATUS_RECORD ER, MEDICLA_EQUIPMENT ME
+		WHERE ER.EQUIPMENT_KEY = ME.EQUIPMENT_KEY 
+		AND ME.EQUIPMENT_KEY = #{equipmentKey}
+		ORDER BY EQUIPMENT_RECORD_DATE DESC 
+	</select>	
+	
+	<insert id="ptEquipmentStatusInsert" parameterType="kr.or.ddit.vo.EquipmentStatusRecordVO">
+		INSERT INTO EQUIPMENT_STATUS_RECORD
+		(
+			EQUIPMENT_RECORD_KEY, 
+			EQUIPMENT_KEY, 
+			EQUIPMENT_RECORD_WRITER, 
+			EQUIPMENT_RECORD_STATUS, 
+			EQUIPMENT_RECORD_CONTENT, 
+			EQUIPMENT_RECORD_DATE
+		)
+		VALUES
+		(
+			EQUIPMENT_STATUS_RECORD_SEQ.NEXTVAL
+			, #{equipmentKey, jdbcType=INTEGER}
+			, '물치사'
+			, #{equipmentRecordStatus,jdbcType=VARCHAR}
+			, #{equipmentRecordContent,jdbcType=VARCHAR}
+			, SYSDATE
+		)
+	</insert>
+	
+	<select id="ptEquipmentSelectList" resultMap="equipmentStatusMap" parameterType="string">
+		SELECT C.EQUIPMENT_NAME, PTE.PT_EQUIPMENT_CODE, CC.CODE_NAME EQUIPMENT_STATUS, C.BODY_NAME
+		FROM
+		(
+			SELECT ME.EQUIPMENT_KEY, ME.EQUIPMENT_NAME, B.BODY_PART_KEY, CC2.CODE_NAME BODY_NAME
+			FROM(
+					SELECT A.CHART_KEY, ORDER_HISTORY.EQUIPMENT_KEY, ORDER_HISTORY.BODY_PART_KEY  
+					FROM
+						(
+							SELECT MC.CHART_KEY
+							FROM MEDICAL_CHART MC, PATIENT P
+							WHERE MC.PATIENT_KEY = P.PATIENT_KEY 
+							AND P.PATIENT_KEY = #{patientKey}
+						)A, ORDER_HISTORY 
+					WHERE A.CHART_KEY = ORDER_HISTORY.CHART_KEY
+					AND ORDER_HISTORY.EQUIPMENT_KEY IS NOT NULL
+					AND ORDER_HISTORY.ORDER_KIND = 'O004'
+					) B, MEDICLA_EQUIPMENT ME, COMMON_CODE CC2
+			WHERE B.EQUIPMENT_KEY = ME.EQUIPMENT_KEY
+			AND B.BODY_PART_KEY = CC2.CODE
+		) C, PT_EQUIPMENT PTE, COMMON_CODE CC
+		WHERE PTE.EQUIPMENT_KEY = C.EQUIPMENT_KEY
+		AND PTE.PT_EQUIPMENT_STATUS = 'US01'
+		AND CC.CODE = PTE.PT_EQUIPMENT_STATUS
+		ORDER BY PTE.PT_EQUIPMENT_CODE ASC 
+	</select>
+	
+	<select id="ptRoomStatusSelect" resultType="kr.or.ddit.vo.PtRoomVO">
+		SELECT PT_BED_KEY, PT_BED_STATUS, PT_BED_STATUS_TIME
+		FROM PT_ROOM
+	</select>
+	
+	<update id="ptRoomStatusUpdate" parameterType="kr.or.ddit.vo.PtRoomVO">
+		UPDATE PT_ROOM 
+		SET PT_BED_STATUS = #{ptBedStatus, jdbcType=VARCHAR},
+		PT_BED_STATUS_TIME = SYSDATE
+		WHERE PT_BED_KEY = #{ptBedKey, jdbcType=INTEGER}
+	</update>
+	
+	<update id="ptEuipmentStatusUpdate" parameterType="string">
+		UPDATE PT_EQUIPMENT 
+		SET PT_EQUIPMENT_STATUS = 'US02'
+		WHERE PT_EQUIPMENT_CODE = #{ptEQuipmentCode}
+	</update>
+	
+	
+</mapper>

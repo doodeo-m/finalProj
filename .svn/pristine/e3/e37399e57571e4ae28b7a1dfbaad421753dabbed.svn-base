@@ -1,0 +1,18 @@
+package kr.or.ddit.vo;
+
+import java.time.LocalDate;
+
+import lombok.Data;
+import lombok.EqualsAndHashCode;
+import lombok.ToString;
+@Data
+@EqualsAndHashCode(of = "radRecode")
+@ToString
+public class RadiologyVO {
+	private String radRecode; // 촬영기록물
+	private String orderKey; // 오더 번호
+	private Integer attGroupNo; // 파일 그룹번호
+	private String radCont; // 의료진 코멘트
+	private LocalDate radRecordDate; // 촬영날짜
+	private String empKey; // 담당 의료진
+}

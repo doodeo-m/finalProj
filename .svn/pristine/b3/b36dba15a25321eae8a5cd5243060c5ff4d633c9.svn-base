@@ -1,0 +1,11 @@
+package kr.or.ddit.ward.service;
+
+import java.util.List;
+
+import kr.or.ddit.vo.WardBedVO;
+
+public interface WardService {
+	// 병동 침상 상
+	public List<WardBedVO> retrieveWardBedStatus();
+
+}

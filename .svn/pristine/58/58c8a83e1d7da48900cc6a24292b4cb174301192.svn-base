@@ -1,0 +1,95 @@
+<%@ page language="java" contentType="text/html; charset=UTF-8"
+	pageEncoding="UTF-8"%>
+<%@ taglib uri="http://www.springframework.org/security/tags" prefix="security" %>
+<!DOCTYPE html>
+<html>
+<style>
+body {
+	background-color: #E3F6FF;
+}
+
+.ggg {
+	display: grid;
+	grid-template-columns: 1fr 2fr;
+}
+
+.ddd, .fff {
+	display: grid;
+	height: 100vh;
+	place-content: center;
+}
+
+.mainImage {
+	height: 250px;
+	width: 300px;
+}
+.welcomeComment{
+	text-align: center;
+	vertical-align: middle;
+}
+.grid-container {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  flex-direction: column;
+}
+
+.grid-item {
+  font-size: 20px;
+  text-align: center;
+  height: 150px;
+  width: 150px;
+  border-radius: 1rem;
+  border: none;
+  text-align: center;
+  margin-right: 20px;
+  float: left;
+  margin: 20px;
+  background-color: #8DCBE6;
+  
+}
+
+</style>
+<!-- App favicon -->
+<link rel="shortcut icon" href="${cPath }/resources/images/favicon.ico">
+<script type="text/javascript" src="${pageContext.request.contextPath }/resources/js/jquery-3.6.3.min.js"></script>
+<script type="text/javascript" src="${pageContext.request.contextPath }/resources/js/jquery.serializeObject.min.js"></script>
+
+<head>
+<meta charset="UTF-8">
+<title>Insert title here</title>
+</head>
+<body>
+<%-- <security:authorize></security:authorize> 인증관련 확인 --%>
+<security:authorize access="isAuthenticated()"> <!-- 로그인 된다면 나오는 화면 -->
+	<security:authentication property="principal" var="authEmpUser"/>
+	<div class="ggg">
+		<div class="ddd">
+			<img class="mainImage" src="${cPath }/resources/images/mainPage.jpg">
+			<h3 class="welcomeComment">${authEmp.empName}님 환영합니다. (${authEmp.codeName})</h3>
+			<form id="logoutForm" action="${cPath }/logout" method="post">
+				<security:csrfInput/>
+			</form>
+			<a href="javascript: $('#logoutForm').submit();">로그아웃하기</a>
+		</div>
+		<div class="grid-container">
+			<div class="container">
+				<input class="grid-item" type="button" onclick="javascript: location.href='${cPath}/main/chartPage.do'" value="의사">
+				<input class="grid-item" type="button" onclick="javascript: location.href='${cPath}/main/wardPage.do'" value="간호사">
+				<input class="grid-item" type="button" onclick="javascript: location.href='${cPath}/main/therapyPage.do'" onclick="fn_therapyPage" value="물리치료">
+			
+			</div>
+			<div class="container2">
+				<input class="grid-item" type="button" onclick="javascript: location.href='${cPath}/main/radiologyPage.do'"  value="영상의학과">
+				<input class="grid-item" type="button" onclick="javascript: location.href='${cPath}/main/receiptPayPage.do'"  value="원무과">
+				<input class="grid-item" type="button" onclick="javascript: location.href='${cPath}/main/noticeBoardPage.do'" value="공지사항">
+			</div>
+		</div>
+	</div>
+</security:authorize>
+<script>
+
+</script>
+
+</body>
+</html>

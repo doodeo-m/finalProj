@@ -1,0 +1,231 @@
+<%@ page language="java" contentType="text/html; charset=UTF-8"
+pageEncoding="UTF-8"%> <%@ taglib uri="http://java.sun.com/jsp/jstl/core"
+prefix="c"%>
+<div class="grid-stack"><!-- 그리드스택 공간 -->
+<!-- 수납대기목록 -->
+	<div class="grid-stack-item" gs-x="6" gs-y="0" gs-w="3" gs-h="3">
+		<div class="grid-stack-item-content">
+			<div class="">
+				<h5>수납 대기 목록</h5>
+				<hr />
+			</div>
+			<div class="" id="">
+				<span></span>
+				<table class="table table-bordered">
+					<thead class="table-info">
+						<tr>
+							<th>대기번호</th>
+							<th>이름</th>
+							<th>수납여부</th>
+						</tr>
+					</thead>
+					<tbody id="waitingPatientList"></tbody> <!-- 수납을 기다리는 환자 대기목록 -->
+				</table>
+			</div>
+		</div>
+	</div>
+
+	<!-- 환자 상세보기 -->
+	<div class="grid-stack-item" gs-x="6" gs-y="3" gs-w="3" gs-h="2">
+		<div class="grid-stack-item-content">
+			<div class="">
+				<h5>상세보기</h5>
+				<hr />
+			</div>
+			<div class="" id="">
+				<span></span>
+				<table class="table table-bordered">
+					<thead class="table-info">
+						<tr>
+							<th>환자번호</th>
+							<th>이름</th>
+							<th>주민번호</th>
+							<th>결제금액</th>
+						</tr>
+					</thead>
+					<tbody id="detailPatient"></tbody>	<!-- 대기목록에서 클릭한 환자 상세정보 보여주기 -->
+				</table>
+				<button id="apibtn">결제하기</button>
+			</div>
+		</div>
+	</div>
+	<!-- 수납기록 -->
+	<div class="grid-stack-item" gs-x="9" gs-y="3" gs-w="3" gs-h="5">
+		<div class="grid-stack-item-content">
+			<div class="">
+				<h5>수납기록</h5>
+				<hr />
+			</div>
+			<div class="" id="">
+				<span></span>
+				<table class="table table-bordered">
+					<thead class="table-info">
+						<tr>
+							<th>환자번호</th>
+							<th>이름</th>
+							<th>주민번호</th>
+						</tr>
+					</thead>
+					<tbody id=""></tbody>	<!-- 대기목록에서 클릭한 환자 상세정보 보여주기 -->
+				</table>
+			</div>
+		</div>
+	</div>
+</div>
+<button id="apibtn2" class="btn btn-primary">카카오페이</button>
+<script>
+	// 그리드스택 기본설정
+	var grid = GridStack.init({});
+
+
+
+
+	
+	// 수납을 기다리는 환자 대기목록 불러오기  waitingList()-------------------------정민-------------------------------------
+	const waitingPatientList = $("#waitingPatientList");	// 대기목록 테이블 tbody 선택
+
+	const waitingList = () => {
+
+		$.ajax({
+			type: "get",
+			url: "${cPath}/patient/paywaiting",
+			dataType: "json",
+			success: function(wpl){
+
+				waitingPatientList.empty();	// 데이터 잘 받아왔다면 초기화 한번 해주기
+				let waitNo = 1;	// 대기번호 선언
+
+				$.each(wpl, function(i, waitList){	// 대기목록환자 반복문 돌려서 tr, td태그 만들기
+					console.log("가격 : ", waitList.pay.payTotalCost);
+
+					let tr = $('<tr>').on('click', function(){fn_wplClick(this, waitList);}).append(
+						$('<td>').html(waitNo)	// 대기번호
+						, $('<td>').html(waitList.patientName)	// 환자이름
+						, $('<td>').html("미납")	// 수납여부가 0인 데이터만 가져오는 쿼리로 만들었기 때문에 미납을 넣어주었음 거래가 완료되면 1로 update해서 결제내역으로 이동시키기
+						).data("waitingListData", wpl);	// 다른데서 사용할 수 있으니 wpl 저장해두기
+
+						waitingPatientList.append(tr);
+						waitNo++;	// 대기번호 증가해주기
+				})
+
+			},
+			error: function(request, status, error){
+				console.log("code : ", request.state);
+				console.log("message : ", request.responseText);
+				console.log("error : ", error);
+			}
+		})
+
+	};	waitingList();
+	// ----------------------------------------------------------------------정민------------------------------------------
+
+	const detailPatient = $("#detailPatient");	// 환자 상세보기 선택
+	// 수납대기목록 환자 tr 누르면 상세보기로 옮겨지도록 만든 함수
+	const fn_wplClick = (wThis, waitingList) => {
+		console.log("넘어온 값!!!", waitingList);
+		detailPatient.empty();
+		let tr = $("<tr>").append(
+			$("<td>").html(waitingList.patientKey)
+			, $("<td>").html(waitingList.patientName)
+			, $("<td>").html(waitingList.patientRegno1)
+			, $("<td>").html(waitingList.pay.payTotalCost)
+			);
+			detailPatient.append(tr);
+	}
+	
+	
+	
+	// 카카오 결제 API -------------------------정민-------------------------------------
+	const apibtn = $("#apibtn");	// 결제버튼 선택
+	apibtn.on("click", function(){
+		$.ajax({
+			type:"POST",
+			//url:'${cPath}/payment/ready',
+			url:'${cPath}/kakao/pay',
+			dataType:'json',
+			beforeSend: function (xhr) {   /*데이터를 전송하기 전에 헤더에 csrf값을 설정한다*/
+                xhr.setRequestHeader("${_csrf.headerName}", "${_csrf.token}");
+            },
+			success:function(res){
+				alert("받은 요청 ", res.tid);
+			},
+			error: function (request, status, error) {
+				console.log("code: " + request.status)
+				console.log("message: " + request.responseText)
+				console.log("error: " + error);
+			}
+		})
+	});
+	
+	
+	//-------
+	$('#apibtn2').click(function(){
+		$.ajax({
+			url:'${cPath}/kakao/kakaopay',
+			dataType:'json',
+// 			beforeSend: function (xhr) {   /*데이터를 전송하기 전에 헤더에 csrf값을 설정한다*/
+//                 xhr.setRequestHeader("${_csrf.headerName}", "${_csrf.token}");
+//             },
+			success:function(data){
+				console.log("데이타 찍어보기 ", data);
+				//alert(data.tid); //결제 고유 번호
+				var box = data.next_redirect_pc_url;
+				console.log("데이타 찍어보기 box : ", box);
+				//window.open(box); // 새창 열기
+				//location.href = box;
+			},
+			error:function(error){
+				alert(error);
+			}
+		});
+	});
+</script>
+<script>
+$(function(){
+	$("#btn-kakao-pay").click(function(){
+		
+		// 필수입력값을 확인.
+		var name = $("#form-payment input[name='pay-name']").val();
+		var tel = $("#form-payment input[name='pay-tel']").val();
+		var email = $("#form-payment input[name='pay-email']").val();
+		
+		if(name == ""){
+			$("#form-payment input[name='pay-name']").focus()
+		}
+		if(tel == ""){
+			$("#form-payment input[name='pay-tel']").focus()
+		}
+		if(email == ""){
+			$("#form-payment input[name='pay-email']").focus()
+		}
+		
+		// 결제 정보를 form에 저장한다.
+		let totalPayPrice = parseInt($("#total-pay-price").text().replace(/,/g,''))
+		let totalPrice = parseInt($("#total-price").text().replace(/,/g,''))
+		let discountPrice = totalPrice - totalPayPrice 
+		let usePoint = $("#point-use").val()
+		let useUserCouponNo = $(":radio[name='userCoupon']:checked").val()
+		
+		// 카카오페이 결제전송
+		$.ajax({
+			type:'get'
+			,url:'/order/pay'
+			,data:{
+				total_amount: totalPayPrice
+				,payUserName: name
+				,sumPrice:totalPrice
+				,discountPrice:discountPrice
+				,totalPrice:totalPayPrice
+				,tel:tel
+				,email:email
+				,usePoint:usePoint
+				,useCouponNo:useUserCouponNo	
+				
+			},
+			success:function(response){
+				location.href = response.next_redirect_pc_url			
+			}
+		})
+	})
+})
+</script>

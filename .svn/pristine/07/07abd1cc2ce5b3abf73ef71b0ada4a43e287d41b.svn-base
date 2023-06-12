@@ -1,0 +1,42 @@
+package kr.or.ddit.vo;
+
+import org.springframework.security.core.authority.AuthorityUtils;
+import org.springframework.security.core.userdetails.User;
+
+import lombok.extern.slf4j.Slf4j;
+
+@Slf4j
+public class EmpVOWrapper extends User{
+
+	private EmpVO empUser;
+	
+	public EmpVOWrapper(EmpVO empUser) {
+		super(empUser.getEmpId(), empUser.getEmpPass(), AuthorityUtils.createAuthorityList(empUser.getEmpRole()));
+		
+		if (empUser != null) {
+			switch (empUser.getEmpJob()) {
+			case "J001": empUser.setEmpRole("ROLE_ADMIN");
+				break;
+			case "J002": empUser.setEmpRole("ROLE_DOCTOR");
+			break;
+			case "J003": empUser.setEmpRole("ROLE_USER");
+			break;
+			case "J004": empUser.setEmpRole("ROLE_USER");
+			break;
+			case "J005": empUser.setEmpRole("ROLE_USER");
+			break;
+			case "J006": empUser.setEmpRole("ROLE_USER");
+			break;
+			default:
+				break;
+			}
+			
+			this.empUser = empUser;
+		}
+	}
+	
+	public EmpVO getRealUser() {
+		return empUser;
+	}
+	
+}

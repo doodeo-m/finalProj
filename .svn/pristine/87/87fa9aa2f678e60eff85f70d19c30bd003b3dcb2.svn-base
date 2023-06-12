@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="kr.or.ddit.ward.dao.WardDAO">
+
+<select id="selectWardBedStatus" resultType="kr.or.ddit.vo.WardBedVO">
+	SELECT 
+		WB.WARD_KEY,
+		WARD_BED_KEY,
+		(SELECT CODE_NAME FROM COMMON_CODE WHERE CODE = WARD_BED_STATUS) AS WARD_BED_STATUS,
+		(SELECT CODE_NAME FROM COMMON_CODE WHERE CODE = WARD_GRADE) AS WARD_GRADE
+	FROM WARD_BED WB RIGHT OUTER JOIN WARD W ON (WB.WARD_KEY=W.WARD_KEY)
+	ORDER BY WARD_BED_KEY
+</select>
+
+</mapper>

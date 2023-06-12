@@ -1,0 +1,13 @@
+package kr.or.ddit.receipt.dao;
+
+import kr.or.ddit.vo.ReceiptionVO;
+import org.apache.ibatis.annotations.Mapper;
+
+@Mapper
+public interface ReceiptDAO {
+    /**
+     * 대기환자 목록 인서트하기!
+     * @param vo
+     */
+    public int insertWaiting(ReceiptionVO vo);
+}

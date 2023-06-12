@@ -1,0 +1,18 @@
+package kr.or.ddit.vo;
+
+import lombok.Data;
+import lombok.EqualsAndHashCode;
+import lombok.ToString;
+
+@Data
+@EqualsAndHashCode(of = "dietKey")
+@ToString
+public class DietVO {
+	private String dietKey;
+	private String hospitalizeRecordKey;
+	private String dietKind;
+	private Integer dietIntake;
+	private String dietMeals;
+	private String dietWriter;
+
+}

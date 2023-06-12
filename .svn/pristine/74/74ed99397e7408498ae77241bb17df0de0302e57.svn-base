@@ -1,0 +1,289 @@
+<%@ page language="java" contentType="text/html; charset=UTF-8" pageEncoding="UTF-8" %>
+    <meta id="_csrf" name="_csrf" th:content="${_csrf.token}" />
+    <meta id="_csrf_header" name="_csrf_header" th:content="${_csrf.headerName}" />
+ <style>
+ 	.card{
+ 		background-color: #edf2f5;
+ 		width: 80%;
+ 		margin: 0 auto;
+ 	}
+ 	.table th{
+ 		width: 150px;
+ 		text-align: center;
+ 	}
+    .updateButton {
+        left: 75%;
+    }
+    .empInfoDiv{
+        margin: 0 auto;
+    }
+    .empImage{
+    	width : 300px;
+    	height : 350px;
+    	margin-right : 10%;
+    	float: right;
+    }
+    .empImageUpdateButton{
+    	width: 100%;
+    	margin-top: 10px;
+    }
+    .modal{
+    --vz-modal-width : 900px;
+    }
+    h5{
+		text-align: center;
+		font-weight: bold;
+	}
+    .item-header {
+            color: gray;
+    }
+    #empProfilDiv, #empProfilTitle{
+        text-align: center;
+        font-size: 1.1em;
+    }
+ </style>
+
+<div class="card">
+    <div class="card-header">
+        <h5 id="myPageHeader">마이페이지</h5>
+    </div>
+    <div class="card-body">
+            <div class="row empInfoDiv">
+                <div class="col-6">
+                    <div id="empImgMypage"></div>
+                </div>
+                <div class="col-6">
+                    <div id="empInfoTable"></div>
+                </div>
+        </div>
+    </div>
+  </div>
+
+	<!-- 개인정보 수정 모달창 -->
+    <div class="modal fade" id="empInfoUpdateModal" tabindex="-1" aria-labelledby="empInfoUpdateModalLabel"
+        aria-modal="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="empInfoUpdateModalLabel">개인정보 수정하기</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <form id="empUpdateForm" method="post" enctype="multipart/form-data"><!--수정 폼-->
+                        <div  class="row">
+                            <div class="col-6">
+                                <div class="row g-3">
+                                        <div class="col-xl-12">
+                                            <div class="col-xl-12">
+                                                <div>
+                                                    <label for="empKeyLabel" class="form-label">사원코드</label> 
+                                                    <input type="text" class="form-control" name="empKey" id="formEmpKey" readonly>
+                                                </div>
+                                            </div>
+                                            <!--end col-->
+                                            <div>
+                                                <label for="empKeyLabel" class="form-label">아이디</label> 
+                                                <input type="text" class="form-control" name="empId" id="formEmpId">
+                                            </div>
+                                        </div>
+                                        <!--end col-->
+                                        <div class="col-xxl-12">
+                                            <div>
+                                                <label for="patientName" class="form-label">사원명</label> 
+                                                <input type="text" class="form-control" name="empName" id="formEmpName" placeholder="사원명">
+                                            </div>
+                                        </div>
+                                        <!--end col-->
+                                        <div class="col-xxl-12">
+                                            <div>
+                                                <label for="patientRegno1" class="form-label">주민등록번호</label> 
+                                                <input type="text" class="form-control" name="empRegno1" id="formRegno1" placeholder="주민등록번호" readonly>
+                                            </div>
+                                        </div>
+                                        <!--end col-->
+            
+                                        <div class="col-xxl-12">
+                                            <div>
+                                                <label for="patientPn" class="form-label">연락처</label> 
+                                                <input type="text" class="form-control" name="empPhone" id="formEmpPhone" placeholder=" ' - ' 없이 입력하시오." oninput="autoHyphen2(this)">
+                                            </div>
+                                        </div>
+                                        <!--end col-->
+            
+            
+                                        <div></div>
+            
+                                        <div class="col-xxl-12">
+                                            <div>
+                                                <label for="patientType" class="form-label">주소</label> 
+                                                <input type="text"  class="form-control" name="empAddr" id="formEmpAddr" placeholder="주소">
+                                            </div>
+                                        </div>
+                                        <!--end col-->
+                                        <div class="col-xxl-12">
+                                            <div>
+                                                <label for="patientSignificant" class="form-label">상세주소</label>
+                                                <input type="text" class="form-control" name="empAddrDetail" id="formEmpAddrDetail"
+                                                    placeholder="저장된 데이터가 없습니다">
+                                            </div>
+                                        </div>
+                                        <!--end col-->
+            
+                                        <div class="col-lg-12">
+                                            <div class="hstack gap-2 justify-content-end">
+                                                <input type="reset" class="btn btn-light"  data-bs-dismiss="modal" value="등록취소">
+                                                <input type="submit" class="btn btn-primary"  data-bs-dismiss="modal" value="저장">
+                                            </div>
+                                        </div>
+                                        <!--end col-->
+                                    </div>
+                                    <!--end row-->
+                                </div>
+                                <div class="col-6">
+                                    <div id="empProfilTitle">- 프로필 사진 -</div>
+                                    <div id="empProfilDiv"></div><br>
+                                    <input type="hidden" name="empFileGroupNo">
+                                    <input type="file" accept="image/*" name="filename" class="form-control" >
+                                </div>
+                            </div>
+                        </form>
+                </div><!-- 모달 끝 -->
+            </div>
+        </div>
+    </div>
+
+    <script>
+    let empJopMap = {
+                        "J001": { text: "원무과" },
+                        "J002": { text: "의사" },
+                        "J003": { text: "간호사" },
+                        "J004": { text: "물리치료사" },
+                        "J005": { text: "도수치료사" },
+                        "J006": { text: "영상촬영사" }
+                    };
+
+        // 모달창 안에 있는 input태그 선택
+        const myFormempkey = $('#formEmpKey')   // 사원키
+        const myformEmpId = $('#formEmpId')   // 사원아이디
+        const myFormEmpName = $('#formEmpName') // 사원이름
+        const myFormEmpAge = $('#formEmpAge')   // 사원나이
+        const myFormRegno1 = $('#formRegno1')   // 주민번호
+        const myFormPhone = $('#formEmpPhone')  // 전화번호
+        const myFormEmpAddr = $('#formEmpAddr')  // 주소
+        const myFormEmpAddrDetail = $('#formEmpAddrDetail')  // 주소
+        let empImgMypage = $('#empImgMypage');
+        let empProfilDiv = $('#empProfilDiv');
+        let empDetail = null;
+        let empInfoTable = $('#empInfoTable');
+        let makeEmpInfoTable = (empDetail) =>{
+            let empJob = empJopMap[empDetail.empJob].text;
+            let empReg = `\${empDetail.empRegno1}-\${(empDetail.empRegno2 + "").substring(0, 1)}******`
+            let inputModBtn = `<input type="button" class="btn btn-success updateButton" 
+                                data-bs-toggle="modal" data-bs-target="#empInfoUpdateModal" value="정보수정">`;
+            let table = `<table class='table table-hover'>
+                            <tr><th>사원코드</th><td>\${empDetail.empKey}</td></tr>
+                            <tr><th>아&nbsp;이&nbsp;디</th><td>\${empDetail.empId}</td></tr>
+                            <tr><th>이&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;름</th><td>\${empDetail.empName}</td></tr>
+                            <tr><th>나&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;이</th><td>\${empDetail.empAge}</td></tr>
+                            <tr><th>전화번호</th><td>\${empDetail.empPhone}</td></tr>
+                            <tr><th>주민번호</th><td>\${empReg}</td></tr>
+                            <tr><th>주&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;소</th><td>\${empDetail.empAddr}</td></tr>
+                            <tr><th>직&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;무</th><td>\${empJob}</td></tr>
+                            <tr><th>입&nbsp;&nbsp;사&nbsp;&nbsp;일</th><td>\${empDetail.empHireDate.substring(0,10)}</td></tr>
+                            <tr><td colspan='2' style='text-align : center;' >\${inputModBtn}</td></tr>
+                            </table>`;
+            return empInfoTable.empty().append(table);
+        }
+        let getmyEmpProfil = (empDetail) =>{
+            let empFileNo = empDetail.empFileGroupNo;
+            
+        }
+        let textImage = $('#textImage');
+        const data = ()  => {
+            let empKey = `${authEmp.empKey}`
+            let empImage = null;
+            $.ajax({
+                method: 'get',
+                url: '${cPath }/detail?empKey=' + empKey,
+                dataType: 'json',
+                success: function (rslt) {
+                    if(rslt !=null){
+                        empDetail = rslt;
+                        makeEmpInfoTable(empDetail);
+                        let imgSrc = "";
+                        let text ="";
+                        // 이미지 정보
+                        if(empDetail.empFileGroupNo != null){
+                            $.ajax({
+                                    url : `${cPath}/empProfilView`
+                                    , type : 'get'
+                                    , data : {'attGroupNo' : empDetail.empFileGroupNo}
+                                    , dataType: 'json'
+                                    , success : function(resp){
+                                        let file = resp
+                                        if(file.length > 0){
+                                            empImage = file[0];
+                                            imgSrc = `/\${empImage.attPath}/\${empImage.saveName}`;
+                                        }
+                                        let imgMypage = `<img src="\${imgSrc}" class='rounded-circle empImage'>`;
+                                        let imgTag = `<img src="\${imgSrc}" style='width: 350px; border: 1px solid gray; margin:'0 auto;'>`;
+                                        empProfilDiv.empty().append(imgTag, text); // 모달창
+                                        empImgMypage.empty().append(imgMypage);// 메인화면
+                                    }
+                                });
+                        }else{
+                            imgSrc = "/upload/empProfil/noImage.jpg";
+                            text = "<p style='margin : 0 auto;'>프로필 사진을 등록 해주세요.</p>";
+                            let imgMypage = `<img src="\${imgSrc}" class='rounded-circle empImage'>`
+                            let imgTag = `<img src="\${imgSrc}" style='width: 350px; border: 1px solid gray; margin:'0 auto;'>`;
+                            empProfilDiv.empty().append(imgTag, text); //메인화면
+                            empImgMypage.empty().append(imgMypage); // 모달창
+                        }
+                    }
+                },
+            });
+        }
+        data();
+        let empFileGroupNo = $('[name=empFileGroupNo]');
+        let empInfoUpdateModal = $('#empInfoUpdateModal').on('show.bs.modal', function(){
+            let empReg = `\${empDetail.empRegno1}-\${(empDetail.empRegno2 + "").substring(0, 1)}******`
+            myformEmpId.val(empDetail.empId);
+            myFormempkey.val(empDetail.empKey);
+            myFormEmpName.val(empDetail.empName); 
+            myFormEmpAge.val(empDetail.empAge);
+            myFormRegno1.val(empReg) ;
+            myFormPhone.val(empDetail.empPhone) ;
+            myFormEmpAddr.val(empDetail.empAddr);
+            myFormEmpAddrDetail.val(empDetail.empAddrDetail);
+            empFileGroupNo.val(empDetail.empFileGroupNo ?? null);
+        });
+        // 셀렉트
+        let empUpdateForm = $("#empUpdateForm").on("submit", function (event) {
+            event.preventDefault();
+            
+            let formData = new FormData(this);
+            $.ajax({
+                type: "post",
+                url: "${cPath}/empUpdate",
+                data: formData,
+                dataType: "text",
+                cache: false,
+                contentType: false,
+                processData: false,
+                beforeSend: function (xhr) {  
+                    xhr.setRequestHeader("${_csrf.headerName}", "${_csrf.token}");
+                },
+                success: function (rslt) {
+                    if(rslt == 'success'){
+                        $('[type=file]').val("");
+                        Swal.fire("회원 정보 수정이 완료되었습니다.", "success");
+                        data();
+                        getEmpProfil();
+                    }else{
+                        Swal.fire("수정 실패!", "error");
+                    }
+                }
+            })
+        });
+      
+    </script>

@@ -1,0 +1,23 @@
+package kr.or.ddit.vo;
+
+import javax.validation.constraints.NotNull;
+
+import lombok.Data;
+import lombok.EqualsAndHashCode;
+import lombok.ToString;
+
+@Data
+@EqualsAndHashCode(of = "suffliesKey")
+@ToString
+public class OfficeSuppliesVO {
+	@NotNull
+	private Integer suffliesKey;
+	private String suffliesName;
+	@NotNull
+	private Integer buyerKey;
+	private String suffliesStandard;
+	private Integer suffliesReminder;
+	private String locationKey;
+	
+	private BuyerVO buyer;
+}

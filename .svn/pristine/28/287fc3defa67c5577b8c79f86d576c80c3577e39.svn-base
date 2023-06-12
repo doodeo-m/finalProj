@@ -1,0 +1,81 @@
+package kr.or.ddit.noticeBoard.controller;
+
+import java.util.ArrayList;
+import java.util.List;
+
+import javax.inject.Inject;
+
+import org.springframework.stereotype.Controller;
+import org.springframework.web.bind.annotation.DeleteMapping;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.ResponseBody;
+
+import kr.or.ddit.noticeBoard.service.NoticeBoardService;
+import kr.or.ddit.vo.NoticeBoardVO;
+import lombok.extern.slf4j.Slf4j;
+
+@Controller
+@RequestMapping
+@Slf4j
+public class NoticeBoardController {
+
+	@Inject
+	private NoticeBoardService noticeService;
+	
+	@GetMapping(value = "/noticeBoardList.do", produces = "application/json;charset=UTF-8")
+	@ResponseBody
+	public List<NoticeBoardVO> boardList() {
+		List<NoticeBoardVO> list = new ArrayList<>();
+		list = noticeService.noticeBoardList();
+		
+		return list;
+	}
+	
+	@PostMapping(value = "/noticeBoardInsert.do", produces = "application/json;charset=UTF-8")
+	@ResponseBody
+	public String insertNoticeBoard(@RequestBody NoticeBoardVO noticeBoard) {
+		log.debug("insert 조회 : {}", noticeBoard);
+		noticeService.noticeBoardInsert(noticeBoard);
+		return "success";
+	}
+	
+	@GetMapping(value = "/noticeBoardDetail.do", produces = "application/json;charset=UTF-8")
+	@ResponseBody
+	public NoticeBoardVO noticeDetail(@RequestParam(value = "what") int boardKey) {
+		
+		log.debug("what 왔니 : {}", boardKey);
+		
+		NoticeBoardVO noticeBoard = new NoticeBoardVO();
+		noticeBoard = noticeService.noticeBoardDetail(boardKey);
+		
+		log.debug("noticeBoard 왔니 : {}", noticeBoard);
+		
+		
+		return noticeBoard;
+	}
+	
+	@PostMapping(value = "/noticeBoardUpdate.do", produces = "application/json;charset=UTF-8")
+	@ResponseBody
+	public String updateNoticeBoard(@RequestBody NoticeBoardVO noticeBoard) {
+		log.debug("update 조회 : {}", noticeBoard );
+		
+		noticeService.noticeBoardModify(noticeBoard);
+		
+		return "success";
+	}
+	
+	@DeleteMapping(value = "/noticeBoardDelete.do", produces = "application/json;charset=UTF-8")
+	@ResponseBody
+	public String removeNoticeBoard(@PathVariable("delNoticeBoardKey")int boardKey) {
+		
+		noticeService.noticeBoardDetail(boardKey);
+		
+		return "success";
+	}
+	
+}

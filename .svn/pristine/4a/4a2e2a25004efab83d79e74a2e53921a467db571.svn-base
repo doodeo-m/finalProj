@@ -1,0 +1,23 @@
+package kr.or.ddit.vo;
+
+import java.io.Serializable;
+
+import lombok.Data;
+import lombok.EqualsAndHashCode;
+import lombok.ToString;
+@Data
+@EqualsAndHashCode(of = "chartKey")
+@ToString(exclude = "chartCont")
+public class MedicalChartVO implements Serializable{
+	private String chartKey; // 차트번호
+	private String receiptKey; // 접수번호
+	private String patientKey; // 환자번호
+	private String empKey; // 의사번호
+	private String chartDate; // 작성날짜
+	private String chartCont; // 내용
+	
+	// 부모테이블 - 진단내역테이블
+	private DiagnosisVO dianosis;
+	
+	// 처방내역테이블
+}

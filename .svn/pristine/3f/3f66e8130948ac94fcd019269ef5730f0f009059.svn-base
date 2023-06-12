@@ -1,0 +1,13 @@
+package kr.or.ddit.pay.service;
+
+import org.springframework.stereotype.Service;
+
+/**
+ * 수납내역, 수납 상세내역 관리
+ * @author dlgpd
+ *
+ */
+@Service
+public class PayServiceImpl implements PayService {
+
+}

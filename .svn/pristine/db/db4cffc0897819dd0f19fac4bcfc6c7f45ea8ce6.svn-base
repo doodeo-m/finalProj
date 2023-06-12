@@ -1,0 +1,24 @@
+package kr.or.ddit.medicalChart.service;
+
+import java.util.List;
+
+import kr.or.ddit.vo.DiseaseVO;
+import kr.or.ddit.vo.SurgeryKindVO;
+
+public interface MedicalChartService {
+	//230503 이혜연------------------------------------------
+	/**
+	 * 수술 종류 리스트 불러오기
+	 * @return list
+	 */
+	public List<SurgeryKindVO> retrieveSurgeryKindList();
+	
+	
+	//230504 이혜연------------------------------------------
+	/**
+	 * 전체 질병 코드 불러오기
+	 * @return list
+	 */
+	public List<DiseaseVO> retrieveDiseaseAllList();
+	
+}

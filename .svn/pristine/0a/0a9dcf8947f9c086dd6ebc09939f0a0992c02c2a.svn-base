@@ -1,0 +1,22 @@
+package kr.or.ddit.vo;
+
+import java.io.Serializable;
+
+import lombok.Data;
+import lombok.EqualsAndHashCode;
+
+@Data
+@EqualsAndHashCode(of = "equipmentKey")
+public class MedicalEquipmentVO implements Serializable{
+	private Integer equipmentKey;
+	private String equipmentName;
+	private Integer buyerKey;
+	private String equipmentLocation;
+	private String equipmentModel;	
+	private String equipmentStatus;
+	
+	// 자식테이블 - 장비상태 기록
+	
+	// 부모테이블 - 거래처 테이블
+	
+}

@@ -1,0 +1,39 @@
+package kr.or.ddit.therapy.controller;
+
+import java.util.List;
+
+import javax.inject.Inject;
+
+import org.springframework.stereotype.Controller;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.ResponseBody;
+
+import kr.or.ddit.therapy.service.TherapyService;
+import kr.or.ddit.vo.MedicalEquipmentVO;
+import kr.or.ddit.vo.ReceiptionVO;
+
+@Controller
+@RequestMapping
+public class TherapyController {
+
+	@Inject
+	private TherapyService therapyService;
+	
+	@GetMapping(value = "/ptWaitingPatientList.do", produces = "application/json;charset=UTF-8")
+	@ResponseBody
+	public List<ReceiptionVO> ptWaitingPatientList(){
+		
+		List<ReceiptionVO> list =  therapyService.ptWaitingPatientList();
+		return list;
+	}
+	@GetMapping(value = "/ptEquipmentList.do", produces = "application/json;charset=UTF-8")
+	@ResponseBody
+	public List<MedicalEquipmentVO> ptEquipmentList(){
+		List<MedicalEquipmentVO> list = therapyService.ptEquipmentList();
+		
+		return list;
+	}
+	
+	
+}

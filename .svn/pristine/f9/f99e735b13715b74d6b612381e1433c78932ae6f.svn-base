@@ -1,0 +1,57 @@
+package kr.or.ddit.medicalChart.controller;
+
+import java.util.ArrayList;
+import java.util.List;
+
+import javax.inject.Inject;
+
+import org.springframework.stereotype.Controller;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.ResponseBody;
+
+import kr.or.ddit.medicalChart.service.MedicalChartService;
+import kr.or.ddit.vo.DiseaseVO;
+import kr.or.ddit.vo.SurgeryKindVO;
+
+/**
+ * 진료 페이지 컨트롤러
+ * @author dlgpd
+ *
+ */
+@Controller
+@RequestMapping("/medicalChart")
+public class medicalChartController {
+
+	// service = medicalChart service
+	@Inject
+	private MedicalChartService medicalChartService;
+	
+	// test 수술 종류 불러오기
+	
+	//230503 이혜연------------------------------------------
+	/**
+	 * 수술 목록 리스트 불러오기
+	 * @return
+	 */
+	@GetMapping("surgeryList")
+	@ResponseBody
+	public List<SurgeryKindVO> getSurgeryList(){
+		List<SurgeryKindVO> list = new ArrayList<SurgeryKindVO>();
+		list = medicalChartService.retrieveSurgeryKindList();
+		return list;
+	}
+	
+	/**
+	 * 질병코드 목록 불러오기
+	 * @return
+	 */
+	@GetMapping("diseaseList")
+	@ResponseBody
+	public List<DiseaseVO> getDiseaseList(){
+		List<DiseaseVO> list = new ArrayList<DiseaseVO>();
+		list = medicalChartService.retrieveDiseaseAllList();
+		return list;
+	}
+}

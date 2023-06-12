@@ -1,0 +1,20 @@
+package kr.or.ddit.receipt.service;
+
+import kr.or.ddit.receipt.dao.ReceiptDAO;
+import kr.or.ddit.vo.ReceiptionVO;
+import org.apache.ibatis.annotations.Mapper;
+import org.springframework.stereotype.Service;
+
+import javax.inject.Inject;
+
+@Service
+public class ReceiptServiceImpl implements ReceiptService{
+    @Inject
+    private ReceiptDAO dao;
+    @Override
+    public int insertWaiting(ReceiptionVO vo) {
+        int cnt = dao.insertWaiting(vo);
+        return cnt;
+    }
+}
+

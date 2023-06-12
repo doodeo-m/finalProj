@@ -1,0 +1,22 @@
+package kr.or.ddit.vo;
+
+import java.util.List;
+
+import lombok.Data;
+import lombok.EqualsAndHashCode;
+import lombok.ToString;
+
+@Data
+@EqualsAndHashCode(of="roundsRecordKey")
+@ToString
+public class RoundsRecordVO {
+	
+	private Integer roundsRecordKey; // 시퀀스 
+	private String hospitalizeRecordKey; // 입원 기록 코드 
+	private String roundsRecordWriter; // 작성자 
+	private String roundsRecordDate; // 작성일 
+	private String roundsDoctor; 
+	
+	private List<RoundsPrescriptionVO> roundsPrescriptionList;
+
+}

@@ -1,0 +1,99 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="kr.or.ddit.therapy.dao.TherapyDAO">
+	<resultMap type="kr.or.ddit.vo.ReceiptionVO" id="ptWaitingMap" autoMapping="true">
+		<id property="receiptKey" column="RECEIPT_KEY" />
+		<association property="patient" javaType="kr.or.ddit.vo.PatientVO" autoMapping="true">
+			<id property="patientKey" column="PATIENT_KEY"/>
+			<id property="patientName" column="PATIENT_NAME"/>
+			<id property="patientSex" column="PATIENT_SEX"/>
+			<id property="patientAge" column="PATIENT_AGE"/>
+		</association>
+		<collection property="WaitingList" ofType="kr.or.ddit.vo.WaitingHistoryVO" autoMapping="true"/>
+		<collection property="MChartList" ofType="kr.or.ddit.vo.MedicalChartVO" autoMapping="true">
+			<collection property="orderHistoryVO" ofType="kr.or.ddit.vo.OrderHistoryVO" autoMapping="true">
+				<association property="equipmentKey" javaType="kr.or.ddit.vo.MedicalEquipmentVO" autoMapping="true">
+					<id property="equipmentName" column="EQUIPMENT_NAME"/>
+				</association>
+			</collection>
+		</collection>
+	</resultMap>
+	
+	<resultMap type="kr.or.ddit.vo.MedicalEquipmentVO" id="ptEquipmentMap" autoMapping="true">
+		<association property="buyerVO" javaType="kr.or.ddit.vo.BuyerVO" autoMapping="true">
+			<id property="buyerKey" column="BUYER_KEY"/>
+			<id property="buyerName" column="BUYER_NAME"/>
+			<id property="buyerTel" column="BUYER_TEL"/>
+			<id property="buyerCharger" column="BUYER_CHARGER"/>
+		</association>
+		<collection property="eqStatusRecVO" ofType="kr.or.ddit.vo.EquipmentStatusRecordVO" autoMapping="true" />
+	</resultMap>
+	
+	<select id="ptWaitingPatientList" resultMap="ptWaitingMap">
+		SELECT 
+		    P.PATIENT_KEY, 
+		    P.PATIENT_NAME, 
+		    P.PATIENT_SEX, 
+		    P.PATIENT_AGE, 
+		    C.CODE_NAME WAITING_STATUS_NAME,
+		    SUBSTR(TO_CHAR(WH.WAITING_CHANGE_TIME,'YYYYMMDD HH24:MI' ),11 ) WAITING_CHANGE_TIME
+		FROM PATIENT P, WAITING_HISTORY WH, RECEIPT R, COMMON_CODE C
+		
+		WHERE P.PATIENT_KEY =R.PATIENT_KEY 
+		
+		AND R.RECEIPT_KEY = WH.RECEIPT_KEY 
+		AND C.CODE = WH.WAITING_STATUS  
+		AND WH.WAITING_LOCATION = 'L004'
+<!-- 		AND TO_CHAR(SYSDATE,'YY/MM/DD') = TO_CHAR( WH.WAITING_CHANGE_TIME,'YY/MM/DD') -->
+		
+		ORDER BY WH.WAITING_CHANGE_TIME 
+	</select>
+	
+	<select id="ptEquipmentList" resultType="kr.or.ddit.vo.MedicalEquipmentVO">
+		SELECT 
+			EQUIPMENT_KEY, 
+			EQUIPMENT_NAME, 
+			EQUIPMENT_MODEL 
+		FROM MEDICLA_EQUIPMENT
+	</select>
+	
+	<select id="ptEquipmentDetail" resultMap="ptEquipmentMap"  parameterType="int">
+		SELECT 
+			ME.EQUIPMENT_NAME, ME.EQUIPMENT_MODEL, 
+			B.BUYER_NAME, B.BUYER_CHARGER, B.BUYER_TEL   
+		FROM MEDICLA_EQUIPMENT ME, BUYER B
+		WHERE ME.BUYER_KEY = B.BUYER_KEY 
+		AND ME.EQUIPMENT_KEY = #{equipmentKey}
+	</select>
+	
+	<select id="ptEquipmentStatusList" resultMap="ptEquipmentMap" parameterType="int">
+		SELECT 
+			TO_CHAR(ER.EQUIPMENT_RECORD_DATE,'YY/MM/DD' ) EQUIPMENT_RECORD_DATE, ER.EQUIPMENT_RECORD_CONTENT, ER.EQUIPMENT_RECORD_WRITER
+		FROM EQUIPMENT_STATUS_RECORD ER, MEDICLA_EQUIPMENT ME
+		WHERE ER.EQUIPMENT_KEY = ME.EQUIPMENT_KEY 
+		AND ME.EQUIPMENT_KEY = #{equipmentKey}
+		ORDER BY EQUIPMENT_RECORD_DATE DESC 
+	</select>	
+	
+	<insert id="ptEquipmentStatusInsert" parameterType="kr.or.ddit.vo.EquipmentStatusRecordVO">
+		INSERT INTO EQUIPMENT_STATUS_RECORD
+		(
+			EQUIPMENT_RECORD_KEY, 
+			EQUIPMENT_KEY, 
+			EQUIPMENT_RECORD_WRITER, 
+			EQUIPMENT_RECORD_STATUS, 
+			EQUIPMENT_RECORD_CONTENT, 
+			EQUIPMENT_RECORD_DATE
+		)
+		VALUES
+		(
+			EQUIPMENT_STATUS_RECORD_SEQ.NEXTVAL
+			, #{equipmentKey, jdbcType=INTEGER}
+			, '물치사'
+			, #{equipmentRecordStatus,jdbcType=VARCHAR}
+			, #{equipmentRecordContent,jdbcType=VARCHAR}
+			, SYSDATE
+		)
+	</insert>
+	
+</mapper>

@@ -1,0 +1,14 @@
+package kr.or.ddit.preDiagnosis.service;
+
+import kr.or.ddit.vo.PreDiagnosisVO;
+
+public interface PreDiagnosisService {
+
+	// 0507 문수정 ----------------------------------------------
+	/**
+	 * 예진표 등록
+	 * @param diagnosis
+	 * @return
+	 */
+	public int createPreDiagnosis(PreDiagnosisVO diagnosis);
+}

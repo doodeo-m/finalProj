@@ -1,0 +1,569 @@
+<%@ page language="java" contentType="text/html; charset=UTF-8"
+    pageEncoding="UTF-8"%>
+<%@ taglib uri="http://java.sun.com/jsp/jstl/core" prefix="c"%>
+<h1>접수/수납페이지 입니다</h1>
+
+<!-- 환자 리스트 뜨는곳----------------------------------------------------------------------------------------->
+<button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#exampleModalgrid">
+    신환등록
+</button>
+
+
+	<div class="grid-stack-item grid2" gs-x="5" gs-y="0" gs-w="4" gs-h="3">
+		<div class="grid-stack-item-content tb">
+			<table class="table table-bordered">
+				<thead class="table-light">
+					<tr>
+						<th>환자번호</th>
+						<th>환자이름</th>
+						<th>환자나이</th>
+						<th>환자성별</th>
+						<th>주민앞</th>
+						<th>주민뒤</th>
+						<th>연락처</th>
+						<th>주소</th>
+						<th>상세주소</th>
+						<th>환자유형</th>
+						<th>특이사항</th>
+					</tr>
+				</thead>
+				<tbody id="patientListBody">
+				
+				</tbody>
+			</table>
+		</div>	
+	</div>
+<!-- 환자 리스트 뜨는곳 끝 ------------------------------------------------------------------------------------------>
+
+
+
+<!-- 환자 상세보기 모달창 ------------------------------------------------------------------------------------------->
+<div class="modal fade" id="exampleModalgrid1" tabindex="-1" aria-labelledby="exampleModalgrid1Label" aria-modal="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="exampleModalgrid1Label2">환자 상세 보기</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            
+            <div class="modal-body">
+ <!-- 폼 -->     <form id="patientViewForm">
+					<div class="row g-3">
+						<div class="col-xl-5">
+							<div>
+								<label for="patientKey2" class="form-label">환자 번호</label>
+								<input type="text" readonly class="form-control" name="patientKey2" > <!-- placeholder= -->
+							</div>
+						</div><!--end col-->
+						<div class="col-xxl-6">
+							<div>
+								<label for="patientName2" class="form-label">환자 이름</label>
+								<input type="text" readonly  class="form-control" name="patientName2" >
+							</div>
+						</div><!--end col-->
+						<div class="col-xxl-6">
+							<div>
+								<label for="patientAge2" class="form-label">환자 나이</label>
+								<input type="text" readonly class="form-control" name="patientAge2" >
+							</div>
+						</div><!--end col-->
+						<div class="col-lg-12">
+								<label for="patientSex2" class="form-label">환자 성별</label>
+								<input type="text" readonly class="form-control" name="patientSex2" >
+						</div><!--end col-->
+						<div class="col-xxl-6">
+							<div>
+								<label for="patientRegno2" class="form-label">주민등록번호</label>
+								<input type="text" readonly class="form-control" name="patientRegno2" >
+							</div>
+						</div><!--end col-->
+						<div class="col-xxl-6">
+							<div>
+								<label for="patientPn2" class="form-label">환자 연락처</label>
+								<input type="text" readonly class="form-control" name="patientPn2" value=>
+							</div>
+						</div><!--end col-->
+						<div class="col-xxl-6">
+							<label for="patientAddress2" class="form-label">환자 주소</label><br>
+							<input type="text" readonly name="patientAddress2"><br>
+							<input type="text" readonly name="patientAddressDetail2">
+						</div>
+						<div class="col-xxl-6">
+							<div>
+								<label for="patientType2" class="form-label">환자 유형</label>
+								<input type="text" readonly class="form-control" name="patientType2">
+							</div>
+						</div><!--end col-->
+						<div class="col-xxl-6">
+							<div>
+								<label for="patientSignificant2" class="form-label">환자 특이사항</label>
+								<input type="text" readonly class="form-control" name="patientSignificant2">
+							</div>
+						</div><!--end col-->
+
+						<div class="col-lg-12">
+							<div class="hstack gap-2 justify-content-end">
+								<button type="button" class="btn btn-light" data-bs-dismiss="modal">창닫기</button>
+								<button type="button" class="btn btn-primary" id="updatePatientButton">정보수정</button>
+							</div>
+						</div><!--end col-->
+					</div><!--end row-->
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+<!-- 환자 상세보기 모달창 끝----------------------------------------------------------------------------------------->
+
+
+
+<!-- 환자 등록 모달창------------------------------------------------------------------------------------------------>
+
+<div class="modal fade" id="exampleModalgrid" tabindex="-1" aria-labelledby="exampleModalgridLabel" aria-modal="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="exampleModalgridLabel">신규 환자 등록</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+ <!-- 폼 -->     <form id="patientInsertForm">
+                    <div class="row g-3">
+                        <div class="col-xl-5">
+                            <div>
+                                <label for="patientKey" class="form-label">환자 번호</label>
+                                <input type="text" class="form-control" name="patientKey" value="P00028"> <!-- placeholder= -->
+                            </div>
+                        </div><!--end col-->
+                        <div class="col-xxl-6">
+                            <div>
+                                <label for="patientName" class="form-label">환자 이름</label>
+                                <input type="text" class="form-control" name="patientName" value="김땡땡">
+                            </div>
+                        </div><!--end col-->
+                        <div class="col-xxl-6">
+                            <div>
+                                <label for="patientAge" class="form-label">환자 나이</label>
+                                <input type="text" class="form-control" name="patientAge" value="35">
+                            </div>
+                        </div><!--end col-->
+                        <div class="col-lg-12">
+                            <label for="patientSex" class="form-label">환자 성별</label>
+                            <div>
+                                <div class="form-check form-check-inline">
+                                    <input class="form-check-input" type="radio" name="patientSex" id="inlineRadio1" value="M" checked="checked">
+                                    <label class="form-check-label" for="inlineRadio1">남</label>
+                                </div>
+                                <div class="form-check form-check-inline">
+                                    <input class="form-check-input" type="radio" name="patientSex" id="inlineRadio2" value="F">
+                                    <label class="form-check-label" for="inlineRadio2">여</label>
+                                </div>
+                            </div>
+                        </div><!--end col-->
+                        <div class="col-xxl-6">
+                            <div>
+                                <label for="patientRegno" class="form-label">주민등록번호</label>
+                                <input type="text" class="form-control" name="patientRegno" value="8801231112121">
+                            </div>
+                        </div><!--end col-->
+                        <div class="col-xxl-6">
+                            <div>
+                                <label for="patientPn" class="form-label">환자 연락처</label>
+                                <input type="text" class="form-control" name="patientPn" value="010-7777-8888">
+                            </div>
+                        </div><!--end col-->
+                        <div class="col-xxl-6">
+                        	<label for="patientAddress" class="form-label">환자 주소</label><br>
+                        	<input type="text" id="sample2_postcode" placeholder="우편번호">
+							<input type="button" onclick="sample2_execDaumPostcode()" value="우편번호 찾기"><br>
+							<input type="text" name="patientAddress"  id="sample2_address" placeholder="주소"><br>
+							<input type="text" name="patientAddressDetail0" id="sample2_detailAddress" placeholder="상세주소">
+                        	
+							<!-- iOS에서는 position:fixed 버그가 있음, 적용하는 사이트에 맞게 position:absolute 등을 이용하여 top,left값 조정 필요 -->
+							<div id="layer" style="display:none;position:fixed;overflow:hidden;z-index:1;-webkit-overflow-scrolling:touch;">
+							<img src="//t1.daumcdn.net/postcode/resource/images/close.png" id="btnCloseLayer" style="cursor:pointer;position:absolute;right:-3px;top:-3px;z-index:1" onclick="closeDaumPostcode()" alt="닫기 버튼">
+							</div>
+						</div>
+
+                        <div class="col-xxl-6">
+                            <div>
+                                <label for="patientType" class="form-label">환자 유형</label>
+                                <input type="text" class="form-control" name="patientType" value="PK02">
+                            </div>
+                        </div><!--end col-->
+                        <div class="col-xxl-6">
+                            <div>
+                                <label for="patientSignificant" class="form-label">환자 특이사항</label>
+                                <input type="text" class="form-control" name="patientSignificant" value="테스트환자입니다">
+                            </div>
+                        </div><!--end col-->
+
+                        <div class="col-lg-12">
+                            <div class="hstack gap-2 justify-content-end">
+                                <button type="button" class="btn btn-light" data-bs-dismiss="modal">등록취소</button>
+                                <button type="submit" class="btn btn-primary" data-bs-dismiss="modal">저장</button>
+                            </div>
+                        </div><!--end col-->
+                    </div><!--end row-->
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+<!-- 환자 등록 모달창 끝---------------------------------------------------------------------------------------------->
+
+
+
+
+
+<script src="//t1.daumcdn.net/mapjsapi/bundle/postcode/prod/postcode.v2.js"></script>
+<script>
+
+// 환자 리스트 띄우는 함수 -------------------------------------------------------------------------------------------
+function f_List(){
+
+}
+// 환자 리스트 띄우는 함수 -------------------------------------------------------------------------------------------
+
+
+
+// 환자 리스트 시작----------------------------------------------------------------------------------------------------
+let patientListBody = $('#patientListBody');
+
+
+//일반적으로 table tr에 마우스를 올리면 해당 로우를 잘 보이게 해주는게 예의!
+$(document).on("mouseover","#patientListBody tr",function(){
+    //console.log("check",this);
+    $(this).css("color","lightblue");
+}).on("mouseout","#patientListBody tr",function(){
+    $(this).css("color","black").css("fontSize","1em");
+})
+
+
+
+const f_patientList = function(resp){
+        let patientList = resp;
+        //console.log("수정필수:",resp);
+        let patienttrTags = [];
+        if(patientList.length > 0){
+            
+            // 있어 보이는 거 말고, 움직임이 보이는 소스로 머리를 세뇌시킨 후에 있어 보이는 소스 
+            for(let i=0; i<patientList.length; i++){
+                let patient = patientList[i];
+//                 let viewURL = `${pageContext.request.contextPath}/patient/patientView.do?what=\${patient.patientKey}`;
+// 				console.log("환자 키!!!",patient.patientKey)	//여기서 뜨는거 필요함!!!
+// 	            let aTag = $("<input>").attr({"type" : "button", "class":"btn btn-primary", "data-bs-toggle":"modal", "id" : "detailModal"}).html(patient.patientName);
+	            let aTag = $("<a>").attr(
+	            		{
+	            			"href" : "#",
+	            			 "data-bs-toggle":"modal" 
+	            			,"data-bs-target" :  "#exampleModalgrid1"
+							, 'id' : 'pId'
+							, 'data-key' : patient.patientKey
+	            		}
+	            		).html(patient.patientName);
+// 				console.log("patient", patient)
+                let trs = $('<tr>').append(
+                    $('<td>').html(patient.patientKey)
+                    ,$('<td>').html(aTag)
+//                     ,$('<td>').html(patient.patientName)
+                    ,$('<td>').html(patient.patientAge)
+                    ,$('<td>').html(patient.patientSex)
+                    ,$('<td>').html(patient.patientRegno1)
+                    ,$('<td>').html(patient.patientRegno2)
+                    ,$('<td>').html(patient.patientPn)
+                    ,$('<td>').html(patient.patientAddress)
+                    ,$('<td>').html(patient.patientAddressDetail)
+                    ,$('<td>').html(patient.patientType)
+                    ,$('<td>').html(patient.patientSignificant)
+                ).addClass("datatr").data("source", patient);
+                patienttrTags.push(trs);
+            }  
+        }
+        patientListBody.append(patienttrTags);
+}
+
+		$.ajax({
+			type : "get",
+			url : "${pageContext.request.contextPath}/patient/patientList.do",
+			dataType : "json",
+			success : function(resp) { // success안에 처리가 길어지면 별도 함수로 맹글어서 처리한당!
+				f_patientList(resp);
+			},
+			error : function(request, status, error) {
+				//console.log("code: " + request.status)
+				//console.log("message: " + request.responseText)
+				//console.log("error: " + error);
+			}
+		})
+
+
+
+
+// 환자 리스트 끝-------------------------------------------------------------------------------------------------------
+
+	
+	
+// 환자 상세보기 시작---------------------------------------------------------------------------------------------------
+let exampleModalgrid1 = $("#exampleModalgrid1");
+let patientViewForm = $('#patientViewForm'); //view 폼 셀렉트
+
+
+let viewpatientKey = patientViewForm.find('input[name=patientKey2]');// 제이쿼리가($)가 가지고 있는 find()라는 함수 => 자식태그를 찾는 함수
+// [속성선택자] => input 태그의 [name] 속성 중의 name='patientKey'라는 속성을 가진 태그를 셀렉트
+// 여기서 값을 빼고 싶으면 .val() : GET 값을 가져오기
+// 값을 넣고싶으면 .val(넣고싶은 값)
+// let pkey = $('[name="patientKey"]');
+let viewpatientName= patientViewForm.find('input[name=patientName2]');// 제이쿼리가($)가 가지고 있는 find()라는 함수 => 자식태그를 찾는 함수
+let viewpatientAge= patientViewForm.find('input[name=patientAge2]');// 제이쿼리가($)가 가지고 있는 find()라는 함수 => 자식태그를 찾는 함수
+let viewpatientSex= patientViewForm.find('input[name=patientSex2]');// 제이쿼리가($)가 가지고 있는 find()라는 함수 => 자식태그를 찾는 함수
+let viewpatientRegno= patientViewForm.find('input[name=patientRegno2]');// 제이쿼리가($)가 가지고 있는 find()라는 함수 => 자식태그를 찾는 함수
+let viewpatientPn= patientViewForm.find('input[name=patientPn2]');// 제이쿼리가($)가 가지고 있는 find()라는 함수 => 자식태그를 찾는 함수
+let viewpatientAddress= patientViewForm.find('input[name=patientAddress2]');// 제이쿼리가($)가 가지고 있는 find()라는 함수 => 자식태그를 찾는 함수
+let viewpatientAddressDetail= patientViewForm.find('input[name=patientAddressDetail2]');// 제이쿼리가($)가 가지고 있는 find()라는 함수 => 자식태그를 찾는 함수
+let viewpatientType= patientViewForm.find('input[name=patientType2]');// 제이쿼리가($)가 가지고 있는 find()라는 함수 => 자식태그를 찾는 함수
+let viewpatientSignificant= patientViewForm.find('input[name=patientSignificant2]');// 제이쿼리가($)가 가지고 있는 find()라는 함수 => 자식태그를 찾는 함수
+
+	
+	
+$(document).on('click', '#pId', function(event){
+	event.preventDefault();
+	// console.log("a태그 확인");
+	let key = $(this).data('key')
+// 	console.log("key=", key)
+	
+	$.ajax({
+		type: "get",
+		url : "/FinalPJ/patient/patientView.do",
+		data : {what:key},
+		dataType : "json",
+		success: function(rslt){
+// 			f_patientView(rslt);
+			viewpatientKey.val(rslt.patientKey);
+			viewpatientName.val(rslt.patientName);
+			viewpatientAge.val(rslt.patientAge);
+			viewpatientSex.val(rslt.patientSex);
+			viewpatientRegno.val(rslt.patientRegno1 + '-' + rslt.patientRegno2);
+			viewpatientPn.val(rslt.patientPn);
+			viewpatientAddress.val(rslt.patientAddress);
+			viewpatientAddressDetail.val(rslt.patientAddressDetail);
+			viewpatientType.val(rslt.patientType);
+			viewpatientSignificant.val(rslt.patientSignificant);
+		}
+		
+	})
+	
+
+	return false;
+})
+	
+// 환자 상세보기 끝-----------------------------------------------------------------------------------------------------
+	
+
+
+// 환자 수정 시작 ------------------------------------------------------------------------------------------------------
+$(document).ready(function(){
+	let isUpdating = false;
+	
+	
+	$("#updatePatientButton").click(function(){
+		if(!isUpdating){
+			$("#patientViewForm input").prop("readonly", false);
+			$("#exampleModalgrid1Label2").text("환자 정보 수정")
+			$("#updatePatientButton").text("저장");
+			
+			isUpdating = true;
+			
+			
+		}else{
+	let patientVO = {
+			patientKey : $("input[name=patientKey2]").val(),
+			patientName : $("input[name=patientName2]").val(),
+			patientAge : $("input[name=patientAge2]").val(),
+			patientSex : $("input[name=patientSex2]").val(),
+			patientRegno1 : $("input[name=patientRegno2]").val().substr(0, 6),
+			patientRegno2 : $("input[name=patientRegno2]").val().substr(7, 7),
+			patientPn : $("input[name=patientPn2]").val(),
+			patientAddress : $("input[name=patientAddress2]").val(),
+			patientAddressDetail : $("input[name=patientAddressDetail2]").val(),
+			patientType : $("input[name=patientType2]").val(),
+			patientSignificant : $("input[name=patientSignificant2]").val()
+		};
+	
+	console.log("체크:", patientVO);
+			$("#patientViewForm input").prop("readonly", true);
+			$("#updatePatientButton").text("수정");
+			isUpdating = false;
+			
+			console.log("흐흐흐흐")
+			$.ajax({
+				url : "/FinalPJ/patient/patientUpdate.do",
+				type: "post",
+				contentType : 'application/json; charset=UTF-8',
+				data : JSON.stringify(patientVO),
+				success: function(rslt){
+					console.log("젭알..", rslt);
+					debugger;
+// 					fn_retrieveList();
+				}
+				,error : function(request, status, error) {
+					//console.log("code: " + request.status)
+					//console.log("message: " + request.responseText)
+					//console.log("error: " + error);
+				}
+			})
+		}
+	})
+
+
+
+	fn_retrieveList();
+
+
+})
+
+// 환자 수정 끝 --------------------------------------------------------------------------------------------------------
+
+
+
+	
+	
+// 환자 인서트 시작-----------------------------------------------------------------------------------------------------
+	let patientInsertForm = $("#patientInsertForm"); // 셀렉트
+
+	patientInsertForm.on("submit", function(event) {
+		event.preventDefault();
+
+		let patientVO = {
+			patientKey : $("input[name=patientKey]").val(),
+			patientName : $("input[name=patientName]").val(),
+			patientAge : $("input[name=patientAge]").val(),
+			patientSex : $("input[name=patientSex]:checked").val(),
+			patientRegno1 : $("input[name=patientRegno]").val().substr(0, 6),
+			patientRegno2 : $("input[name=patientRegno]").val().substr(7, 7),
+			patientPn : $("input[name=patientPn]").val(),
+			patientAddress : $("input[name=patientAddress]").val(),
+			patientAddressDetail : $("input[name=patientAddressDetail]").val(),
+			patientType : $("input[name=patientType]").val(),
+			patientSignificant : $("input[name=patientSignificant]").val()
+		};
+
+// 		console.log("체크:", patientVO);
+
+		$.ajax({
+			type : "post",
+			url : "/FinalPJ/patient/patientInsert.do",
+			contentType : 'application/json; charset=UTF-8',
+			data : JSON.stringify(patientVO),
+			dataType : "text",
+			success : function(rslt) {
+				//console.log(rslt);
+// 				fn_retrieveList();
+			}
+		})
+
+		/*
+		$.ajax({
+		    url: "<c:url value='/patient/patientInsert.do'/>"
+		    , method: 'POST'
+		    , data : data
+		    , contentType : 'application/json; charset=UTF-8'
+		}).done(function(resp, textStatus, jqXHR){
+
+		})
+		 */
+
+// 		alert("확인");
+	})
+
+// 환자 인서트 끝---------------------------------------------------------------------------------------------------
+
+//우편번호 찾기 시작------------------------------------------------------------------------------------------------
+	// 우편번호 찾기 화면을 넣을 element
+	var element_layer = document.getElementById('layer');
+
+	function closeDaumPostcode() {
+		// iframe을 넣은 element를 안보이게 한다.
+		element_layer.style.display = 'none';
+	}
+
+	function sample2_execDaumPostcode() {
+		new daum.Postcode(
+				{
+					oncomplete : function(data) {
+						// 검색결과 항목을 클릭했을때 실행할 코드를 작성하는 부분.
+
+						// 각 주소의 노출 규칙에 따라 주소를 조합한다.
+						// 내려오는 변수가 값이 없는 경우엔 공백('')값을 가지므로, 이를 참고하여 분기 한다.
+						var addr = ''; // 주소 변수
+						var extraAddr = ''; // 참고항목 변수
+
+						//사용자가 선택한 주소 타입에 따라 해당 주소 값을 가져온다.
+						if (data.userSelectedType === 'R') { // 사용자가 도로명 주소를 선택했을 경우
+							addr = data.roadAddress;
+						} else { // 사용자가 지번 주소를 선택했을 경우(J)
+							addr = data.jibunAddress;
+						}
+
+						// 사용자가 선택한 주소가 도로명 타입일때 참고항목을 조합한다.
+						if (data.userSelectedType === 'R') {
+							// 법정동명이 있을 경우 추가한다. (법정리는 제외)
+							// 법정동의 경우 마지막 문자가 "동/로/가"로 끝난다.
+							if (data.bname !== ''
+									&& /[동|로|가]$/g.test(data.bname)) {
+								extraAddr += data.bname;
+							}
+							// 건물명이 있고, 공동주택일 경우 추가한다.
+							if (data.buildingName !== ''
+									&& data.apartment === 'Y') {
+								extraAddr += (extraAddr !== '' ? ', '
+										+ data.buildingName : data.buildingName);
+							}
+
+						}
+
+						// 우편번호와 주소 정보를 해당 필드에 넣는다.
+						document.getElementById('sample2_postcode').value = data.zonecode;
+						document.getElementById("sample2_address").value = addr;
+						// 커서를 상세주소 필드로 이동한다.
+						document.getElementById("sample2_detailAddress")
+								.focus();
+
+						// iframe을 넣은 element를 안보이게 한다.
+						// (autoClose:false 기능을 이용한다면, 아래 코드를 제거해야 화면에서 사라지지 않는다.)
+						element_layer.style.display = 'none';
+					},
+
+					width : '100%',
+					height : '100%',
+					maxSuggestItems : 5
+				}).embed(element_layer);
+
+		// iframe을 넣은 element를 보이게 한다.
+		element_layer.style.display = 'block';
+
+		// iframe을 넣은 element의 위치를 화면의 가운데로 이동시킨다.
+		initLayerPosition();
+	}
+
+	// 브라우저의 크기 변경에 따라 레이어를 가운데로 이동시키고자 하실때에는
+	// resize이벤트나, orientationchange이벤트를 이용하여 값이 변경될때마다 아래 함수를 실행 시켜 주시거나,
+	// 직접 element_layer의 top,left값을 수정해 주시면 됩니다.
+	function initLayerPosition() {
+		var width = 300; //우편번호서비스가 들어갈 element의 width
+		var height = 480; //우편번호서비스가 들어갈 element의 height
+		var borderWidth = 3; //샘플에서 사용하는 border의 두께
+
+		// 위에서 선언한 값들을 실제 element에 넣는다.
+		element_layer.style.width = width + 'px';
+		element_layer.style.height = height + 'px';
+		element_layer.style.border = borderWidth + 'px solid';
+		// 실행되는 순간의 화면 너비와 높이 값을 가져와서 중앙에 뜰 수 있도록 위치를 계산한다.
+		element_layer.style.left = (((window.innerWidth || document.documentElement.clientWidth) - width) / 2 - borderWidth)
+				+ 'px';
+		element_layer.style.top = (((window.innerHeight || document.documentElement.clientHeight) - height) / 2 - borderWidth)
+				+ 'px';
+	}
+
+//우편번호 찾기 끝------------------------------------------------------------------------------------------------
+</script>
